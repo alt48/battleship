@@ -1,0 +1,1 @@
+import Battleship from '../Game';
