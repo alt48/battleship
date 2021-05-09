@@ -1,4 +1,4 @@
-import Gameboard from '../Gameboard';
+import Gameboard from '../src/Gameboard';
 
 test('10x10 empty board', () => {
   const board = Gameboard().dist;

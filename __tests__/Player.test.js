@@ -1,4 +1,4 @@
-import Player from '../Player';
+import Player from '../src/Player';
 
 const boardMock = jest.fn().mockReturnValue({
   dist: 'dist property',
