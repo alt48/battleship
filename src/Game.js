@@ -1,21 +1,38 @@
 import Player from './Player';
 
-const Battleship = (function() {
-  let currentPlayer;
-  let firstPlayer;
-  let secondPlayer;
+let currentPlayer = false;
+let firstPlayer = false;
+let secondPlayer = false;
 
-  const start = (playerFunc=Player) => {
-    firstPlayer = playerFunc();
-    secondPlayer = playerFunc();
-  };
+function start(playerFunc=Player) {
+  firstPlayer = playerFunc();
+  secondPlayer = playerFunc();
+  currentPlayer = firstPlayer;
+}
 
-  const setFirstPlayer = () => {
-  };
+function changeCurrentPlayer() {
+  currentPlayer = currentPlayer === firstPlayer
+    ? secondPlayer
+    : firstPlayer;
+}
 
-  return {
-    start
-  };
-})()
+function finish() {
+  currentPlayer = false;
+  firstPlayer = false;
+  secondPlayer = false;
+}
 
-export default Battleship;
+function isReset() {
+  return [
+    currentPlayer,
+    firstPlayer,
+    secondPlayer,
+  ].every((i) => !i);
+}
+
+export {
+  start,
+  changeCurrentPlayer,
+  finish,
+  isReset,
+};
