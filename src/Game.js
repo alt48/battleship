@@ -1,4 +1,5 @@
 import Player from './Player';
+import PubSub from './PubSub';
 
 let currentPlayer = false;
 let opponentPlayer = false;
@@ -23,6 +24,7 @@ function changeCurrentPlayer() {
   opponentPlayer = currentPlayer === firstPlayer
     ? secondPlayer
     : firstPlayer;
+  PubSub.publish('game#change-player');
 }
 
 function finish() {
@@ -68,4 +70,5 @@ export {
   createShip,
   attemptToHit,
   winner,
+  started,
 };
