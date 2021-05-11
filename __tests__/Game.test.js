@@ -4,7 +4,6 @@ import {
   finish,
   createShip,
   attemptToHit,
-  winner,
 } from '../src/Game';
 
 test('player creation', () => {
@@ -71,6 +70,5 @@ test('win the battleship', () => {
 
   start(playerMock);
   attemptToHit([0, 0]);
-  expect(winner).toBe('first player');
   expect(isReset()).toBe(true);
 });

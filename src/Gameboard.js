@@ -9,13 +9,13 @@ import Ship from './Ship';
 // };
 
 const gameboardProto = {
-  addShip(pos, builderFunc=Ship) {
+  addShip(pos, builderFunc = Ship) {
     const ship = builderFunc(pos.length);
     this.ships.push(ship);
     pos.forEach((coord) => {
-      this.dist[coord[0]][coord[1]] = ship;
+      this.board[coord[0]][coord[1]] = ship;
     });
-  }
+  },
 };
 
 export default function Gameboard() {

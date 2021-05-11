@@ -5,16 +5,15 @@ let currentPlayer = false;
 let opponentPlayer = false;
 let firstPlayer = false;
 let secondPlayer = false;
-let winner = false;
-let started = false;
 
-function start(playerFunc=Player) {
+function start(playerFunc = Player) {
   firstPlayer = playerFunc();
+  PubSub.publish('game#first-player', firstPlayer);
   secondPlayer = playerFunc();
+  PubSub.publish('game#second-player', secondPlayer);
   currentPlayer = firstPlayer;
+  PubSub.publish('game#change-player', firstPlayer);
   opponentPlayer = secondPlayer;
-  started = true;
-  winner = false;
 }
 
 function changeCurrentPlayer() {
@@ -24,15 +23,15 @@ function changeCurrentPlayer() {
   opponentPlayer = currentPlayer === firstPlayer
     ? secondPlayer
     : firstPlayer;
-  PubSub.publish('game#change-player');
+  PubSub.publish('game#change-player', currentPlayer);
 }
 
-function finish() {
+function finish(winner) {
   currentPlayer = false;
   opponentPlayer = false;
   firstPlayer = false;
   secondPlayer = false;
-  started = false;
+  PubSub.publish('game#finish-game', winner);
 }
 
 function isReset() {
@@ -41,7 +40,6 @@ function isReset() {
     opponentPlayer,
     firstPlayer,
     secondPlayer,
-    started,
   ].every((i) => !i);
 }
 
@@ -51,14 +49,19 @@ function createShip(pos) {
 
 function attemptToHit(coord) {
   const square = opponentPlayer.board[coord[0]][coord[1]];
+  let winner;
   if (square !== '') {
     square.hit();
     if (opponentPlayer.ships.every((ship) => ship.isSunk)) {
       winner = currentPlayer === firstPlayer
         ? 'first player'
         : 'second player';
-      finish();
     }
+  }
+  if (winner) {
+    finish(winner);
+  } else {
+    changeCurrentPlayer();
   }
 }
 
@@ -69,6 +72,4 @@ export {
   isReset,
   createShip,
   attemptToHit,
-  winner,
-  started,
 };

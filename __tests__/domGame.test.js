@@ -48,29 +48,11 @@ test('initial status', () => {
 
 test('set a ship', () => {
   setupDOM();
-  const evaluationMock = jest.fn();
-  const initialEventMock = {
-    target: {
-      id: 'event-id',
-      dataset: {
-        coord: '0#0',
-      },
-    },
-  };
-  const finalEventMock = {
-    target: {
-      id: 'event-id',
-      dataset: {
-        coord: '3#0',
-      },
-    },
-  };
 
-  game.beginPath(initialEventMock, evaluationMock);
-  expect(evaluationMock.mock.calls[0]).toEqual(['event-id']);
+  game.beginPath([0, 0]);
   expect(game.getCurrentPath()).toEqual([0, 0]);
 
-  game.beginPath(finalEventMock, evaluationMock);
+  game.beginPath([3, 0]);
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 0], [1, 0], [2, 0], [3, 0] ]
   ]);

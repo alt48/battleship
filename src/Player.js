@@ -3,7 +3,7 @@ import Gameboard from './Gameboard';
 const playerProto = {
 };
 
-export default function Player(boardFunc=Gameboard) {
+export default function Player(boardFunc = Gameboard) {
   const board = boardFunc();
 
   return Object.assign(Object.create(playerProto), {
