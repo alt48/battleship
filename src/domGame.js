@@ -8,6 +8,7 @@ function domGame(dependencies) {
     changeCurrentPlayer,
     attemptToHit,
   } = dependencies;
+
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -52,20 +53,30 @@ function domGame(dependencies) {
     return button;
   };
 
-  const cleanStatus = (target, btnProps) => {
+  const cleanStatusTo = (target, btnProps) => {
     const parentElm = target.parentElement;
     target.remove();
     parentElm.appendChild(createButton(...btnProps));
   };
 
-  const domStartBattleship = (e) => {
+  const startEvaluation = () => {
+    if (!started) throw new Error('Please start the game');
+  };
+
+  const domStartBattleship = (e, attrs = {
+    startEvaluation,
+  }) => {
+    attrs.startEvaluation();
     e.target.remove();
     hitMode = true;
     changeCurrentPlayer();
   };
 
-  const domChangePlayer = (e) => {
-    cleanStatus(e.target, [
+  const domChangePlayer = (e, attrs = {
+    startEvaluation,
+  }) => {
+    attrs.startEvaluation();
+    cleanStatusTo(e.target, [
       { textContent: 'Start Game', id: 'start-game' },
       domStartBattleship,
     ]);
@@ -73,7 +84,7 @@ function domGame(dependencies) {
   };
 
   const domStart = (e) => {
-    cleanStatus(e.target, [
+    cleanStatusTo(e.target, [
       { textContent: 'Change Player', id: 'change-player' },
       domChangePlayer,
     ]);
@@ -108,17 +119,19 @@ function domGame(dependencies) {
     }
   };
 
-  const pointShip = (e) => {
+  const pointShip = (e, attrs = {
+    pointEvaluation: evaluatePath,
+    hitCondition: hitMode,
+    defaultAction: beginPath,
+  }) => {
     const coord = e.target.dataset.coord.split('#').map((i) => +i);
-    evaluatePath(e.target.parentElement.id);
-    if (hitMode) {
+    attrs.pointEvaluation(e.target.parentElement.id);
+    if (attrs.hitCondition) {
       attemptToHit(coord);
     } else {
-      beginPath(coord);
+      attrs.defaultAction(coord);
     }
   };
-
-  const getCurrentPath = () => currentPath;
 
   const domFinish = (winner) => {
     hitMode = false;
@@ -141,6 +154,17 @@ function domGame(dependencies) {
     secondPlayer = player;
   };
 
+  const getAttrs = () => (
+    {
+      started,
+      currentPath,
+      hitMode,
+      currentPlayer,
+      firstPlayer,
+      secondPlayer,
+    }
+  );
+
   PubSub.subscribe('game#first-player', setFirstPlayer);
   PubSub.subscribe('game#second-player', setSecondPlayer);
   PubSub.subscribe('game#change-player', changePlayer);
@@ -151,9 +175,9 @@ function domGame(dependencies) {
     domStart,
     domChangePlayer,
     domStartBattleship,
-    beginPath,
     pointShip,
-    getCurrentPath,
+    beginPath,
+    getAttrs,
   };
 }
 
