@@ -1,14 +1,14 @@
 import Player from '../src/Player';
 
 const boardMock = jest.fn().mockReturnValue({
-  dist: 'dist property',
+  board: 'board property',
   ships: 'ships property',
   addShip: jest.fn().mockReturnValue('add ship called'),
 });
 
 test('default properties', () => {
   const player = Player(boardMock);
-  expect(player.board).toBe('dist property');
+  expect(player.board).toBe('board property');
   expect(player.ships).toBe('ships property');
 });
 

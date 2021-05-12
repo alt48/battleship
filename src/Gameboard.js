@@ -27,6 +27,6 @@ export default function Gameboard() {
   }
 
   return Object.assign(Object.create(gameboardProto), {
-    dist: board, ships,
+    board, ships,
   });
 }

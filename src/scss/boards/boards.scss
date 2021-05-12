@@ -1,0 +1,26 @@
+#root {
+  text-align: center;
+}
+
+#boards {
+  display: flex;
+  justify-content: space-evenly;
+  button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    background-image: url("images/sea.png");
+    &:hover {
+      background: gray;
+    }
+    &:disabled {
+      background: black;
+    }
+  }
+}
+
+#fp-board, #sp-board {
+  display: grid;
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  grid-gap: 2px;
+}
