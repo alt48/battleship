@@ -24,11 +24,13 @@ test('finish game reset', () => {
   expect(isReset()).toBe(true);
 });
 
-test('adds ships', () => {
+test('add ships', () => {
   const addShipMock = jest.fn();
   const playerMock = jest.fn()
     .mockReturnValue({
-      addShip: addShipMock,
+      boardObj: {
+        addShip: addShipMock,
+      },
     });
 
   start(playerMock);

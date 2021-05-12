@@ -14,5 +14,5 @@ test('default properties', () => {
 
 test('add ship function', () => {
   const player = Player(boardMock);
-  expect(player.addShip()).toBe('add ship called');
+  expect(player.boardObj.addShip()).toBe('add ship called');
 });

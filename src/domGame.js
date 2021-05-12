@@ -109,10 +109,20 @@ function domGame(dependencies) {
     if (!rightBoard) throw new Error('You can\'t do that');
   };
 
-  const beginPath = (coord) => {
+  const styleCoords = (path, type) => {
+    path.forEach((coord) => {
+      const pCoord = coord.join('#');
+      document.querySelector(`[data-coord="${pCoord}"]`).classList.add(`board-${type}`);
+    });
+  };
+
+  const beginPath = (coord, attrs = {
+    styleFunction: styleCoords,
+  }) => {
     if (currentPath) {
       const path = traversePath(currentPath, coord);
-      createShip(path);
+      const { type } = createShip(path);
+      attrs.styleFunction(path, type);
       currentPath = false;
     } else {
       currentPath = coord;

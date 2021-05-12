@@ -18,26 +18,21 @@ const gameboardProto = {
   },
 
   evaluateShip(ship) {
+    let type;
     switch (ship.type) {
       case 'Carrier':
-        const carriers = this.getShips('Carrier');
-        if (carriers.length === 1) this.maximumShips('Carrier');
-        break;
+        type = { name: 'Carrier', quantity: 1 }; break;
       case 'Battleship':
-        const battleships = this.getShips('Battleship');
-        if (battleships.length === 2) this.maximumShips('Battleship');
-        break;
+        type = { name: 'Battleship', quantity: 2 }; break;
       case 'Submarine':
-        const submarines = this.getShips('Submarine');
-        if (submarines.length === 7) this.maximumShips('Submarine');
-        break;
+        type = { name: 'Submarine', quantity: 7 }; break;
       case 'Destroyer':
-        const destroyers = this.getShips('Destroyer');
-        if (destroyers.length === 5) this.maximumShips('Destroyer');
-        break;
+        type = { name: 'Destroyer', quantity: 5 }; break;
       default:
         throw new Error(`Invalid ship type: ${ship.type}`);
     }
+    const ships = this.getShips(type.name);
+    if (ships.length === type.quantity) this.maximumShips(type.name);
   },
 
   addShip(pos, builderFunc = Ship) {
@@ -49,6 +44,8 @@ const gameboardProto = {
     pos.forEach((coord) => {
       this.board[coord[0]][coord[1]] = ship;
     });
+
+    return ship;
   },
 };
 

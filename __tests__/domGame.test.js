@@ -7,7 +7,7 @@ let attemptToHitMock;
 let game;
 
 beforeEach(() => {
-  createShipMock = jest.fn();
+  createShipMock = jest.fn().mockReturnValue({ type: 'Battleship' });;
   startMock = jest.fn();
   changeCurrentPlayerMock = jest.fn();
   attemptToHitMock = jest.fn();
@@ -121,7 +121,9 @@ test('begin path (1)', () => {
   game.beginPath([0, 0]);
   expect(game.getAttrs().currentPath).toEqual([0, 0]);
 
-  game.beginPath([3, 0]);
+  game.beginPath([3, 0], {
+    styleFunction: jest.fn(),
+  });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 0], [1, 0], [2, 0], [3, 0] ],
   ]);
@@ -132,7 +134,9 @@ test('begin path (2)', () => {
   game.beginPath([0, 9]);
   expect(game.getAttrs().currentPath).toEqual([0, 9]);
 
-  game.beginPath([0, 7]);
+  game.beginPath([0, 7], {
+    styleFunction: jest.fn(),
+  });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 9], [0, 8], [0, 7] ],
   ]);
