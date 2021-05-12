@@ -63,10 +63,33 @@ function domGame(dependencies) {
     if (!started) throw new Error('Please start the game');
   };
 
+  const shipNumberEvaluation = () => {
+    if (currentPlayer.ships.length !== 15) throw new Error('Insufficient ships');
+  };
+
+  const getCurrentBoardId = () => (
+    currentPlayer === firstPlayer
+      ? 'fp-board'
+      : 'sp-board'
+  );
+
+  const toggleCurrentPath = () => {
+    const cell = document.querySelector(
+      `#${getCurrentBoardId()} [data-coord="${currentPath.join('#')}"]`,
+    );
+    cell.classList.toggle('current-ship');
+  };
+
   const domStartBattleship = (e, attrs = {
     startEvaluation,
+    shipNumberEvaluation,
   }) => {
     attrs.startEvaluation();
+    attrs.shipNumberEvaluation();
+    if (currentPath) {
+      toggleCurrentPath();
+      currentPath = false;
+    }
     e.target.remove();
     hitMode = true;
     changeCurrentPlayer();
@@ -74,8 +97,14 @@ function domGame(dependencies) {
 
   const domChangePlayer = (e, attrs = {
     startEvaluation,
+    shipNumberEvaluation,
   }) => {
     attrs.startEvaluation();
+    attrs.shipNumberEvaluation();
+    if (currentPath) {
+      toggleCurrentPath();
+      currentPath = false;
+    }
     cleanStatusTo(e.target, [
       { textContent: 'Start Game', id: 'start-game' },
       domStartBattleship,
@@ -92,15 +121,7 @@ function domGame(dependencies) {
     start();
   };
 
-  const checkPlayer = (id) => {
-    let val;
-    if (currentPlayer === firstPlayer) {
-      val = id === 'fp-board';
-    } else if (currentPlayer === secondPlayer) {
-      val = id === 'sp-board';
-    }
-    return val;
-  };
+  const checkPlayer = (id) => id === getCurrentBoardId();
 
   const evaluatePath = (id) => {
     if (!started) throw new Error('Please start the game');
@@ -111,21 +132,28 @@ function domGame(dependencies) {
 
   const styleCoords = (path, type) => {
     path.forEach((coord) => {
-      const pCoord = coord.join('#');
-      document.querySelector(`[data-coord="${pCoord}"]`).classList.add(`board-${type}`);
+      const cell = document.querySelector(
+        `#${getCurrentBoardId()} [data-coord="${coord.join('#')}"]`,
+      );
+      cell.classList.add(`board-${type}`);
     });
   };
 
   const beginPath = (coord, attrs = {
     styleFunction: styleCoords,
+    focusToggler: toggleCurrentPath,
   }) => {
     if (currentPath) {
-      const path = traversePath(currentPath, coord);
-      const { type } = createShip(path);
-      attrs.styleFunction(path, type);
+      if (!currentPath.every((i, idx) => i === coord[idx])) {
+        const path = traversePath(currentPath, coord);
+        const { type } = createShip(path);
+        attrs.styleFunction(path, type);
+      }
+      attrs.focusToggler();
       currentPath = false;
     } else {
       currentPath = coord;
+      attrs.focusToggler();
     }
   };
 

@@ -58,11 +58,14 @@ test('DOM change current player', () => {
     },
   };
   const startEvaluationMock = jest.fn();
+  const shipNumberEvaluationMock = jest.fn();
   game.domChangePlayer(eventMock, {
     startEvaluation: startEvaluationMock,
+    shipNumberEvaluation: shipNumberEvaluationMock,
   });
 
   expect(startEvaluationMock.mock.calls.length).toBe(1);
+  expect(shipNumberEvaluationMock.mock.calls.length).toBe(1);
 
   expect(removeMock.mock.calls.length).toBe(1);
   expect(appendChildMock.mock.calls.length).toBe(1);
@@ -78,11 +81,15 @@ test('DOM start battleship', () => {
     },
   };
   const startEvaluationMock = jest.fn();
+  const shipNumberEvaluationMock = jest.fn();
   game.domStartBattleship(eventMock, {
     startEvaluation: startEvaluationMock,
+    shipNumberEvaluation: shipNumberEvaluationMock,
   });
 
   expect(startEvaluationMock.mock.calls.length).toBe(1);
+  expect(shipNumberEvaluationMock.mock.calls.length).toBe(1);
+
   expect(removeMock.mock.calls.length).toBe(1);
 
   expect(game.getAttrs().hitMode).toBe(true);
@@ -118,11 +125,14 @@ test('point ship', () => {
 });
 
 test('begin path (1)', () => {
-  game.beginPath([0, 0]);
+  game.beginPath([0, 0], {
+    focusToggler: jest.fn(),
+  });
   expect(game.getAttrs().currentPath).toEqual([0, 0]);
 
   game.beginPath([3, 0], {
     styleFunction: jest.fn(),
+    focusToggler: jest.fn(),
   });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 0], [1, 0], [2, 0], [3, 0] ],
@@ -131,14 +141,30 @@ test('begin path (1)', () => {
 });
 
 test('begin path (2)', () => {
-  game.beginPath([0, 9]);
+  game.beginPath([0, 9], {
+    focusToggler: jest.fn(),
+  });
   expect(game.getAttrs().currentPath).toEqual([0, 9]);
 
   game.beginPath([0, 7], {
     styleFunction: jest.fn(),
+    focusToggler: jest.fn(),
   });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 9], [0, 8], [0, 7] ],
   ]);
+  expect(game.getAttrs().currentPath).toBe(false);
+});
+
+test('begin path - reset path', () => {
+  game.beginPath([0, 0], {
+    focusToggler: jest.fn(),
+  });
+  expect(game.getAttrs().currentPath).toEqual([0, 0]);
+
+  game.beginPath([0, 0], {
+    focusToggler: jest.fn(),
+  });
+  expect(createShipMock.mock.calls.length).toBe(0);
   expect(game.getAttrs().currentPath).toBe(false);
 });
