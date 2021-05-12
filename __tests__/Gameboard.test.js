@@ -2,6 +2,7 @@ import Gameboard from '../src/Gameboard';
 
 test('10x10 empty board', () => {
   const board = Gameboard().board;
+
   expect(board.length).toBe(10);
   board.forEach((row) => {
     expect(row.length).toBe(10);
@@ -9,32 +10,49 @@ test('10x10 empty board', () => {
   });
 });
 
-test('add ship to board (horizontal)', () => {
-  const firstBoard = Gameboard();
-  const shipMock = jest.fn().mockReturnValueOnce('X');
+test('add ship (horizontal)', () => {
+  const board = Gameboard();
+  const shipMock = jest.fn().mockReturnValueOnce({ type: 'Battleship' });
 
-  firstBoard.addShip([[0, 1], [0, 2]], shipMock);
-  expect(firstBoard.ships).toEqual(['X']);
+  board.addShip([[0, 1], [0, 2]], shipMock);
+  expect(board.ships).toEqual([{ type: 'Battleship' }]);
 
-  firstBoard.board[0].splice(1, 2);
-  firstBoard.board.forEach((row) => {
+  board.board[0].splice(1, 2);
+  board.board.forEach((row) => {
     expect(row).toEqual(
-      expect.not.arrayContaining(['X']),
+      expect.not.arrayContaining([{ type: 'Battleship' }]),
     );
   });
 });
 
-test('add ship to board (vertical)', () => {
-  const firstBoard = Gameboard();
-  const shipMock = jest.fn().mockReturnValueOnce('O');
+test('add ship (vertical)', () => {
+  const board = Gameboard();
+  const shipMock = jest.fn().mockReturnValueOnce({ type: 'Battleship' });
 
-  firstBoard.addShip([[1, 1], [2, 1], [3, 1]], shipMock);
-  expect(firstBoard.ships).toEqual(['O']);
+  board.addShip([[1, 1], [2, 1], [3, 1]], shipMock);
+  expect(board.ships).toEqual([{ type: 'Battleship' }]);
 
-  for (let i = 1; i <= 3; i += 1) firstBoard.board[i].splice(1, 1);
-  firstBoard.board.forEach((row) => {
+  for (let i = 1; i <= 3; i += 1) board.board[i].splice(1, 1);
+  board.board.forEach((row) => {
     expect(row).toEqual(
-      expect.not.arrayContaining(['O']),
+      expect.not.arrayContaining([{ type: 'Battleship' }]),
     );
+  });
+});
+
+test('ship types', () => {
+  const board = Gameboard();
+  const pairs = [
+    { name: 'Carrier', quantity: 1 },
+    { name: 'Battleship', quantity: 2 },
+    { name: 'Submarine', quantity: 7 },
+    { name: 'Destroyer', quantity: 5 },
+  ];
+  pairs.forEach((type) => {
+    const mock = jest.fn().mockReturnValue({ type: type.name });
+    for (let i = 0; i < type.quantity; i += 1) {
+      board.addShip([[0, 0]], mock);
+    }
+    expect(() => board.addShip([[0, 0]], mock)).toThrow(`Can't add ${type.name}`);
   });
 });
