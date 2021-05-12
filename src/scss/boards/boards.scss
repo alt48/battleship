@@ -5,16 +5,23 @@
 #boards {
   display: flex;
   justify-content: space-evenly;
+  * {
+    cursor: pointer;
+  }
   button {
     width: 35px;
     height: 35px;
     border: none;
     background-image: url("images/sea.png");
-    &:hover {
-      background: gray;
+    &:hover, &:focus {
+      position: relative;
+      outline: thick dashed #aa0000;
     }
     &:disabled {
-      background: black;
+      background-image: url("images/sea-gray.png");
+      &:hover {
+        outline: none;
+      }
     }
   }
 }
