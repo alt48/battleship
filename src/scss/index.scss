@@ -11,5 +11,11 @@ body {
   line-height: 1;
 }
 
+#root {
+  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 @import "./boards/boards.scss";
 @import "./ships/ships.scss";

@@ -1,16 +1,13 @@
-#root {
-  text-align: center;
-}
-
 #boards {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
+  flex-wrap: wrap;
   * {
     cursor: pointer;
   }
   button {
     width: 35px;
-    height: 35px;
+    height: 32px;
     border: none;
     background-image: url("images/sea.png");
     &:hover, &:focus {
@@ -29,5 +26,6 @@
 #fp-board, #sp-board {
   display: grid;
   grid-template: repeat(10, 1fr) / repeat(10, 1fr);
-  grid-gap: 2px;
+  grid-gap: 3px;
+  margin: 2.5rem;
 }
