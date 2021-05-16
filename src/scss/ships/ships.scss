@@ -1,19 +1,17 @@
-.current-ship {
-  background: orange !important;
-}
+.current-ship { background: orange !important; }
+.board-Carrier { background: #ed635e !important; }
+.board-Battleship { background: #c2bf56 !important; }
+.board-Submarine { background: #7e9db4 !important; }
+.board-Destroyer { background: #ee7d77 !important; }
 
-.board-Carrier {
-  background: #ed635e !important;
-}
+$parts: SHIP-head, SHIP-body, SHIP-tail;
+$orientations: horizontal, horizontal-reverse, vertical, vertical-reverse;
 
-.board-Battleship {
-  background: #c2bf56 !important;
-}
-
-.board-Submarine {
-  background: #7e9db4 !important;
-}
-
-.board-Destroyer {
-  background: #ee7d77 !important;
+@each $part in $parts {
+  @each $orientation in $orientations {
+    $mix: #{$part}-#{$orientation};
+    .#{$mix} {
+      background: url("images/#{to-lower-case($mix)}.png") !important;
+    }
+  }
 }

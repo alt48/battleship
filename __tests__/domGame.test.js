@@ -168,3 +168,27 @@ test('begin path - reset path', () => {
   expect(createShipMock.mock.calls.length).toBe(0);
   expect(game.getAttrs().currentPath).toBe(false);
 });
+
+test('get ship orientation (horizontal)', () => {
+  expect(
+    game.getShipOrientation([[0, 1], [0, 2], [0, 3]])
+  ).toBe('horizontal');
+  expect(
+    game.getShipOrientation([[0, 3], [0, 2], [0, 1]])
+  ).toBe('horizontal-reverse');
+});
+
+test('get ship orientation (vertical)', () => {
+  expect(
+    game.getShipOrientation([[1, 0], [2, 0], [3, 0]])
+  ).toBe('vertical');
+  expect(
+    game.getShipOrientation([[3, 0], [2, 0], [1, 0]])
+  ).toBe('vertical-reverse');
+});
+
+test('get ship orientation (error)', () => {
+  expect(
+    () => game.getShipOrientation([[1, 2], [3, 4], [5, 6]])
+  ).toThrow('Invalid positions');
+});
