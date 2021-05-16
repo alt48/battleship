@@ -24,6 +24,16 @@ function domGame(dependencies) {
     return ids;
   };
 
+  const hideScreen = () => {
+    const elm = document.createElement('div');
+    elm.id = 'board-layer';
+    elm.textContent = 'Click here';
+    elm.addEventListener('click', (e) => {
+      e.target.remove();
+    });
+    document.body.insertBefore(elm, document.body.firstElementChild);
+  };
+
   const modifyButtons = (ids) => {
     Object.keys(ids).forEach((id) => {
       Array.from(document.querySelectorAll(`#${id} button`)).forEach((btn) => {
@@ -38,6 +48,7 @@ function domGame(dependencies) {
     document.getElementById(ids[0]).classList.add('hidden-board');
     document.getElementById(ids[1]).classList.remove('hidden-board');
 
+    if (hitMode) hideScreen();
     const btnValues = {};
     btnValues[ids[0]] = true;
     btnValues[ids[1]] = false;
@@ -83,6 +94,7 @@ function domGame(dependencies) {
   const domStartBattleship = (e, attrs = {
     startEvaluation,
     shipNumberEvaluation,
+    hideScreen,
   }) => {
     attrs.startEvaluation();
     attrs.shipNumberEvaluation();
@@ -92,6 +104,7 @@ function domGame(dependencies) {
     }
     e.target.remove();
     hitMode = true;
+    hideScreen();
     changeCurrentPlayer();
   };
 

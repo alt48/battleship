@@ -82,13 +82,16 @@ test('DOM start battleship', () => {
   };
   const startEvaluationMock = jest.fn();
   const shipNumberEvaluationMock = jest.fn();
+  const hideScreenMock = jest.fn();
   game.domStartBattleship(eventMock, {
     startEvaluation: startEvaluationMock,
     shipNumberEvaluation: shipNumberEvaluationMock,
+    hideScreen: hideScreenMock,
   });
 
   expect(startEvaluationMock.mock.calls.length).toBe(1);
   expect(shipNumberEvaluationMock.mock.calls.length).toBe(1);
+  expect(hideScreenMock.mock.calls.length).toBe(1);
 
   expect(removeMock.mock.calls.length).toBe(1);
 
