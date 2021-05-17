@@ -11,27 +11,13 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
+  const maxShips = 15;
   let started = false;
   let currentPath = false;
   let hitMode = false;
   let currentPlayer = false;
   let firstPlayer = false;
   let secondPlayer = false;
-
-  const createButton = (props, callback) => {
-    const button = document.createElement('button');
-    Object.keys(props).forEach((prop) => {
-      button[prop] = props[prop];
-    });
-    button.addEventListener('click', callback);
-    return button;
-  };
-
-  const cleanStatusTo = (target, btnProps) => {
-    const parentElm = target.parentElement;
-    target.remove();
-    parentElm.appendChild(createButton(...btnProps));
-  };
 
   const getCurrentBoardId = () => (
     currentPlayer === firstPlayer
@@ -47,43 +33,31 @@ function domGame(dependencies) {
   };
 
   const commonEvaluation = () => {
-    if (!started) throw new Error('Please start the game');
-    if (currentPlayer.ships.length !== 15) {
-      throw new Error('Insufficient ships');
-    }
     if (currentPath) {
       toggleCurrentPath();
       currentPath = false;
     }
   };
 
-  const domStartBattleship = (e, attrs = {
+  const domStartBattleship = (attrs = {
     commonEvaluation,
     hideScreen,
   }) => {
     attrs.commonEvaluation();
-    e.target.remove();
     hitMode = true;
     attrs.hideScreen();
     changeCurrentPlayer();
   };
 
-  const domChangePlayer = (e, attrs = {
+  const domChangePlayer = (attrs = {
     commonEvaluation,
   }) => {
     attrs.commonEvaluation();
-    cleanStatusTo(e.target, [
-      { textContent: 'Start Game', id: 'start-game' },
-      domStartBattleship,
-    ]);
     changeCurrentPlayer();
   };
 
   const domStart = (e) => {
-    cleanStatusTo(e.target, [
-      { textContent: 'Change Player', id: 'change-player' },
-      domChangePlayer,
-    ]);
+    e.target.remove();
     started = true;
     start();
   };
@@ -130,10 +104,21 @@ function domGame(dependencies) {
     }
   };
 
+  const dealWithPoint = (coord) => {
+    beginPath(coord);
+    if (currentPlayer.ships.length === maxShips) {
+      if (currentPlayer === firstPlayer) {
+        domChangePlayer();
+      } else {
+        domStartBattleship();
+      }
+    }
+  };
+
   const pointShip = (e, attrs = {
     pointEvaluation: evaluatePath,
     hitCondition: hitMode,
-    defaultAction: beginPath,
+    defaultAction: dealWithPoint,
   }) => {
     const coord = e.target.dataset.coord.split('#').map((i) => +i);
     attrs.pointEvaluation(e.target);

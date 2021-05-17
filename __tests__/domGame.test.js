@@ -27,67 +27,39 @@ test('initial status', () => {
 });
 
 test('DOM start', () => {
-  const removeMock = jest.fn();
-  const appendChildMock = jest.fn();
   const eventMock = {
     target: {
-      remove: removeMock,
-      parentElement: {
-        appendChild: appendChildMock,
-      },
+      remove: jest.fn(),
     },
   };
   game.domStart(eventMock);
 
   expect(startMock.mock.calls.length).toBe(1);
-  expect(removeMock.mock.calls.length).toBe(1);
-  expect(appendChildMock.mock.calls.length).toBe(1);
+  expect(eventMock.target.remove.mock.calls.length).toBe(1);
 
   expect(game.getAttrs().started).toBe(true);
 });
 
 test('DOM change current player', () => {
-  const removeMock = jest.fn();
-  const appendChildMock = jest.fn();
-  const eventMock = {
-    target: {
-      remove: removeMock,
-      parentElement: {
-        appendChild: appendChildMock,
-      },
-    },
-  };
   const commonEvaluationMock = jest.fn();
-  game.domChangePlayer(eventMock, {
+  game.domChangePlayer({
     commonEvaluation: commonEvaluationMock,
   });
 
   expect(commonEvaluationMock.mock.calls.length).toBe(1);
-
-  expect(removeMock.mock.calls.length).toBe(1);
-  expect(appendChildMock.mock.calls.length).toBe(1);
-
   expect(changeCurrentPlayerMock.mock.calls.length).toBe(1);
 });
 
 test('DOM start battleship', () => {
-  const removeMock = jest.fn();
-  const eventMock = {
-    target: {
-      remove: removeMock,
-    },
-  };
   const commonEvaluationMock = jest.fn();
   const hideScreenMock = jest.fn();
-  game.domStartBattleship(eventMock, {
+  game.domStartBattleship({
     commonEvaluation: commonEvaluationMock,
     hideScreen: hideScreenMock,
   });
 
   expect(commonEvaluationMock.mock.calls.length).toBe(1);
   expect(hideScreenMock.mock.calls.length).toBe(1);
-
-  expect(removeMock.mock.calls.length).toBe(1);
 
   expect(game.getAttrs().hitMode).toBe(true);
   expect(changeCurrentPlayerMock.mock.calls.length).toBe(1);
