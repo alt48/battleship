@@ -102,34 +102,39 @@ test('point ship', () => {
       parentElement: {
         id: 'parent-id',
       },
+      classList: {
+        add: jest.fn(),
+      },
     },
   };
-  const defaultActionMock = jest.fn();
-  const pointEvaluationMock = jest.fn();
+
   const mockedAttrs = {
-    pointEvaluation: pointEvaluationMock,
+    pointEvaluation: jest.fn(),
     hitCondition: false,
-    defaultAction: defaultActionMock,
+    defaultAction: jest.fn(),
   }
 
   game.pointShip(eventMock, mockedAttrs);
-  expect(defaultActionMock.mock.calls.length).toBe(1);
-  expect(defaultActionMock.mock.calls[0]).toEqual([[9, 8]]);
+  expect(mockedAttrs.defaultAction.mock.calls.length).toBe(1);
+  expect(mockedAttrs.defaultAction.mock.calls[0]).toEqual([[9, 8]]);
 
   mockedAttrs.hitCondition = true;
   game.pointShip(eventMock, mockedAttrs);
+  expect(eventMock.target.classList.add.mock.calls.length).toBe(1);
   expect(attemptToHitMock.mock.calls.length).toBe(1);
 });
 
 test('begin path (1)', () => {
   game.beginPath([0, 0], {
     focusToggler: jest.fn(),
+    pathEvaluation: jest.fn(),
   });
   expect(game.getAttrs().currentPath).toEqual([0, 0]);
 
   game.beginPath([3, 0], {
     styleFunction: jest.fn(),
     focusToggler: jest.fn(),
+    pathEvaluation: jest.fn(),
   });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 0], [1, 0], [2, 0], [3, 0] ],
@@ -140,12 +145,14 @@ test('begin path (1)', () => {
 test('begin path (2)', () => {
   game.beginPath([0, 9], {
     focusToggler: jest.fn(),
+    pathEvaluation: jest.fn(),
   });
   expect(game.getAttrs().currentPath).toEqual([0, 9]);
 
   game.beginPath([0, 7], {
     styleFunction: jest.fn(),
     focusToggler: jest.fn(),
+    pathEvaluation: jest.fn(),
   });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 9], [0, 8], [0, 7] ],
@@ -156,14 +163,30 @@ test('begin path (2)', () => {
 test('begin path - reset path', () => {
   game.beginPath([0, 0], {
     focusToggler: jest.fn(),
+    pathEvaluation: jest.fn(),
   });
   expect(game.getAttrs().currentPath).toEqual([0, 0]);
 
   game.beginPath([0, 0], {
     focusToggler: jest.fn(),
+    pathEvaluation: jest.fn(),
   });
   expect(createShipMock.mock.calls.length).toBe(0);
   expect(game.getAttrs().currentPath).toBe(false);
+});
+
+test('path evaluation', () => {
+  const player = {
+    board: [
+      ['', {}],
+    ],
+  };
+
+  expect(
+    () => game.pathEvaluation([[0, 1]], {
+      currentPlayer: player,
+    }),
+  ).toThrow('Ocuppied!');
 });
 
 // test('get ship orientation (horizontal)', () => {

@@ -97,13 +97,28 @@ function domGame(dependencies) {
     }
   };
 
+  const pathEvaluation = (path, attrs = {
+    currentPlayer,
+  }) => {
+    path.forEach((coord) => {
+      if (attrs.currentPlayer.board[coord[0]][coord[1]] !== '') {
+        throw new Error('Ocuppied!');
+      }
+    });
+  };
+
   const beginPath = (coord, attrs = {
     styleFunction: styleCoords,
     focusToggler: toggleCurrentPath,
+    pathEvaluation,
   }) => {
+    attrs.pathEvaluation([coord]);
+
     if (currentPath) {
       if (!currentPath.every((i, idx) => i === coord[idx])) {
         const path = traversePath(currentPath, coord);
+        attrs.pathEvaluation(path);
+
         createShip(path);
         attrs.styleFunction(path, getCurrentBoardId());
       }
@@ -178,6 +193,7 @@ function domGame(dependencies) {
     domStartBattleship,
     pointShip,
     beginPath,
+    pathEvaluation,
     getAttrs,
   };
 }
