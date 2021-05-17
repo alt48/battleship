@@ -57,15 +57,12 @@ test('DOM change current player', () => {
       },
     },
   };
-  const startEvaluationMock = jest.fn();
-  const shipNumberEvaluationMock = jest.fn();
+  const commonEvaluationMock = jest.fn();
   game.domChangePlayer(eventMock, {
-    startEvaluation: startEvaluationMock,
-    shipNumberEvaluation: shipNumberEvaluationMock,
+    commonEvaluation: commonEvaluationMock,
   });
 
-  expect(startEvaluationMock.mock.calls.length).toBe(1);
-  expect(shipNumberEvaluationMock.mock.calls.length).toBe(1);
+  expect(commonEvaluationMock.mock.calls.length).toBe(1);
 
   expect(removeMock.mock.calls.length).toBe(1);
   expect(appendChildMock.mock.calls.length).toBe(1);
@@ -80,17 +77,14 @@ test('DOM start battleship', () => {
       remove: removeMock,
     },
   };
-  const startEvaluationMock = jest.fn();
-  const shipNumberEvaluationMock = jest.fn();
+  const commonEvaluationMock = jest.fn();
   const hideScreenMock = jest.fn();
   game.domStartBattleship(eventMock, {
-    startEvaluation: startEvaluationMock,
-    shipNumberEvaluation: shipNumberEvaluationMock,
+    commonEvaluation: commonEvaluationMock,
     hideScreen: hideScreenMock,
   });
 
-  expect(startEvaluationMock.mock.calls.length).toBe(1);
-  expect(shipNumberEvaluationMock.mock.calls.length).toBe(1);
+  expect(commonEvaluationMock.mock.calls.length).toBe(1);
   expect(hideScreenMock.mock.calls.length).toBe(1);
 
   expect(removeMock.mock.calls.length).toBe(1);
@@ -172,26 +166,26 @@ test('begin path - reset path', () => {
   expect(game.getAttrs().currentPath).toBe(false);
 });
 
-test('get ship orientation (horizontal)', () => {
-  expect(
-    game.getShipOrientation([[0, 1], [0, 2], [0, 3]])
-  ).toBe('horizontal');
-  expect(
-    game.getShipOrientation([[0, 3], [0, 2], [0, 1]])
-  ).toBe('horizontal-reverse');
-});
-
-test('get ship orientation (vertical)', () => {
-  expect(
-    game.getShipOrientation([[1, 0], [2, 0], [3, 0]])
-  ).toBe('vertical');
-  expect(
-    game.getShipOrientation([[3, 0], [2, 0], [1, 0]])
-  ).toBe('vertical-reverse');
-});
-
-test('get ship orientation (error)', () => {
-  expect(
-    () => game.getShipOrientation([[1, 2], [3, 4], [5, 6]])
-  ).toThrow('Invalid positions');
-});
+// test('get ship orientation (horizontal)', () => {
+//   expect(
+//     game.getShipOrientation([[0, 1], [0, 2], [0, 3]])
+//   ).toBe('horizontal');
+//   expect(
+//     game.getShipOrientation([[0, 3], [0, 2], [0, 1]])
+//   ).toBe('horizontal-reverse');
+// });
+//
+// test('get ship orientation (vertical)', () => {
+//   expect(
+//     game.getShipOrientation([[1, 0], [2, 0], [3, 0]])
+//   ).toBe('vertical');
+//   expect(
+//     game.getShipOrientation([[3, 0], [2, 0], [1, 0]])
+//   ).toBe('vertical-reverse');
+// });
+//
+// test('get ship orientation (error)', () => {
+//   expect(
+//     () => game.getShipOrientation([[1, 2], [3, 4], [5, 6]])
+//   ).toThrow('Invalid positions');
+// });

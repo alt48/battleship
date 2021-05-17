@@ -1,4 +1,6 @@
 import traversePath from './traversePath';
+import { hideBoard, hideScreen } from './domHideBoard';
+import styleCoords from './domStyleCells';
 import PubSub from './PubSub';
 
 function domGame(dependencies) {
@@ -16,45 +18,6 @@ function domGame(dependencies) {
   let firstPlayer = false;
   let secondPlayer = false;
 
-  const getHideIds = (...revConditions) => {
-    let ids = ['sp-board', 'fp-board'];
-    revConditions.forEach((cond) => {
-      if (cond) ids = ids.reverse();
-    });
-    return ids;
-  };
-
-  const hideScreen = () => {
-    const elm = document.createElement('div');
-    elm.id = 'board-layer';
-    elm.textContent = 'Click here';
-    elm.addEventListener('click', (e) => {
-      e.target.remove();
-    });
-    document.body.insertBefore(elm, document.body.firstElementChild);
-  };
-
-  const modifyButtons = (ids) => {
-    Object.keys(ids).forEach((id) => {
-      Array.from(document.querySelectorAll(`#${id} button`)).forEach((btn) => {
-        const modBtn = btn;
-        modBtn.disabled = ids[id];
-      });
-    });
-  };
-
-  const hideBoard = () => {
-    const ids = getHideIds(hitMode, currentPlayer === secondPlayer);
-    document.getElementById(ids[0]).classList.add('hidden-board');
-    document.getElementById(ids[1]).classList.remove('hidden-board');
-
-    if (hitMode) hideScreen();
-    const btnValues = {};
-    btnValues[ids[0]] = true;
-    btnValues[ids[1]] = false;
-    modifyButtons(btnValues);
-  };
-
   const createButton = (props, callback) => {
     const button = document.createElement('button');
     Object.keys(props).forEach((prop) => {
@@ -70,14 +33,6 @@ function domGame(dependencies) {
     parentElm.appendChild(createButton(...btnProps));
   };
 
-  const startEvaluation = () => {
-    if (!started) throw new Error('Please start the game');
-  };
-
-  const shipNumberEvaluation = () => {
-    if (currentPlayer.ships.length !== 15) throw new Error('Insufficient ships');
-  };
-
   const getCurrentBoardId = () => (
     currentPlayer === firstPlayer
       ? 'fp-board'
@@ -91,33 +46,32 @@ function domGame(dependencies) {
     cell.classList.toggle('current-ship');
   };
 
-  const domStartBattleship = (e, attrs = {
-    startEvaluation,
-    shipNumberEvaluation,
-    hideScreen,
-  }) => {
-    attrs.startEvaluation();
-    attrs.shipNumberEvaluation();
+  const commonEvaluation = () => {
+    if (!started) throw new Error('Please start the game');
+    if (currentPlayer.ships.length !== 15) {
+      throw new Error('Insufficient ships');
+    }
     if (currentPath) {
       toggleCurrentPath();
       currentPath = false;
     }
+  };
+
+  const domStartBattleship = (e, attrs = {
+    commonEvaluation,
+    hideScreen,
+  }) => {
+    attrs.commonEvaluation();
     e.target.remove();
     hitMode = true;
-    hideScreen();
+    attrs.hideScreen();
     changeCurrentPlayer();
   };
 
   const domChangePlayer = (e, attrs = {
-    startEvaluation,
-    shipNumberEvaluation,
+    commonEvaluation,
   }) => {
-    attrs.startEvaluation();
-    attrs.shipNumberEvaluation();
-    if (currentPath) {
-      toggleCurrentPath();
-      currentPath = false;
-    }
+    attrs.commonEvaluation();
     cleanStatusTo(e.target, [
       { textContent: 'Start Game', id: 'start-game' },
       domStartBattleship,
@@ -134,52 +88,11 @@ function domGame(dependencies) {
     start();
   };
 
-  const checkPlayer = (id) => id === getCurrentBoardId();
-
   const evaluatePath = (id) => {
     if (!started) throw new Error('Please start the game');
-    let rightBoard = checkPlayer(id);
+    let rightBoard = id === getCurrentBoardId();
     if (hitMode) rightBoard = !rightBoard;
     if (!rightBoard) throw new Error('You can\'t do that');
-  };
-
-  const getShipOrientation = (pos) => {
-    let orientation;
-    if (pos.every((i) => i[0] === pos[0][0])) {
-      orientation = 'horizontal';
-      if (pos[0][1] > pos[pos.length - 1][1]) {
-        orientation += '-reverse';
-      }
-    } else if (pos.every((i) => i[1] === pos[0][1])) {
-      orientation = 'vertical';
-      if (pos[0][0] > pos[pos.length - 1][0]) {
-        orientation += '-reverse';
-      }
-    }
-    if (orientation) return orientation;
-    throw new Error('Invalid positions');
-  };
-
-  const styleCoords = (path, type) => {
-    const orientation = getShipOrientation(path);
-
-    const cells = [];
-    path.forEach((coord) => {
-      const cell = document.querySelector(
-        `#${getCurrentBoardId()} [data-coord="${coord.join('#')}"]`,
-      );
-      cells.push(cell);
-    });
-
-    const head = cells.splice(0, 1)[0];
-    head.classList.add(`SHIP-head-${orientation}`);
-
-    const tail = cells.splice(-1, 1)[0];
-    tail.classList.add(`SHIP-tail-${orientation}`);
-
-    cells.forEach((cell) => {
-      cell.classList.add(`SHIP-body-${orientation}`);
-    });
   };
 
   const beginPath = (coord, attrs = {
@@ -189,8 +102,8 @@ function domGame(dependencies) {
     if (currentPath) {
       if (!currentPath.every((i, idx) => i === coord[idx])) {
         const path = traversePath(currentPath, coord);
-        const { type } = createShip(path);
-        attrs.styleFunction(path, type);
+        createShip(path);
+        attrs.styleFunction(path, getCurrentBoardId());
       }
       attrs.focusToggler();
       currentPath = false;
@@ -223,6 +136,10 @@ function domGame(dependencies) {
     console.log(winner);
   };
 
+  const toggleBoards = () => {
+    hideBoard(hitMode, [hitMode, currentPlayer === secondPlayer]);
+  };
+
   const changePlayer = (player) => {
     currentPlayer = player;
   };
@@ -249,7 +166,7 @@ function domGame(dependencies) {
   PubSub.subscribe('game#first-player', setFirstPlayer);
   PubSub.subscribe('game#second-player', setSecondPlayer);
   PubSub.subscribe('game#change-player', changePlayer);
-  PubSub.subscribe('game#change-player', hideBoard);
+  PubSub.subscribe('game#change-player', toggleBoards);
   PubSub.subscribe('game#finish-game', domFinish);
 
   return {
@@ -259,7 +176,6 @@ function domGame(dependencies) {
     pointShip,
     beginPath,
     getAttrs,
-    getShipOrientation,
   };
 }
 
