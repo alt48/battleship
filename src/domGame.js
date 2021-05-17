@@ -88,11 +88,13 @@ function domGame(dependencies) {
     start();
   };
 
-  const evaluatePath = (id) => {
+  const evaluatePath = (target) => {
     if (!started) throw new Error('Please start the game');
-    let rightBoard = id === getCurrentBoardId();
+    let rightBoard = target.parentElement.id === getCurrentBoardId();
     if (hitMode) rightBoard = !rightBoard;
-    if (!rightBoard) throw new Error('You can\'t do that');
+    if (!rightBoard || target.className.includes('hit-button')) {
+      throw new Error('You can\'t do that');
+    }
   };
 
   const beginPath = (coord, attrs = {
@@ -119,8 +121,9 @@ function domGame(dependencies) {
     defaultAction: beginPath,
   }) => {
     const coord = e.target.dataset.coord.split('#').map((i) => +i);
-    attrs.pointEvaluation(e.target.parentElement.id);
+    attrs.pointEvaluation(e.target);
     if (attrs.hitCondition) {
+      e.target.classList.add('hit-button');
       attemptToHit(coord);
     } else {
       attrs.defaultAction(coord);

@@ -26,3 +26,26 @@ $orientations: horizontal, horizontal-reverse, vertical, vertical-reverse;
     outline: none;
   }
 }
+
+.hit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hit-button:after {
+  content: "";
+  height: 16px;
+  width: 16px;
+  background: rgba(200, 0, 0, 0.7);
+  transform: rotate(-22.5deg);
+}
+
+.hit-button:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  background: rgba(200, 0, 0, 0.7);
+  transform: rotate(22.5deg);
+}
