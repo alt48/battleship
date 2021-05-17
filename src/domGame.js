@@ -137,7 +137,7 @@ function domGame(dependencies) {
   };
 
   const toggleBoards = () => {
-    hideBoard(hitMode, [hitMode, currentPlayer === secondPlayer]);
+    hideBoard(hitMode, [currentPlayer === secondPlayer]);
   };
 
   const changePlayer = (player) => {

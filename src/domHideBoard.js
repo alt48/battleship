@@ -18,9 +18,11 @@ const hideScreen = () => {
 
 const modifyButtons = (ids) => {
   Object.keys(ids).forEach((id) => {
-    Array.from(document.querySelectorAll(`#${id} button`)).forEach((btn) => {
-      const modBtn = btn;
-      const method = ids[id] ? 'add' : 'remove';
+    const buttons = Array.from(document.querySelectorAll(`#${id} button`));
+    buttons.forEach((button) => {
+      const modBtn = button;
+      modBtn.disabled = ids[id].includes('disabled');
+      const method = ids[id].includes('hidden') ? 'add' : 'remove';
       modBtn.classList[method]('hidden-cell');
     });
   });
@@ -31,10 +33,16 @@ const hideBoard = (hitMode, conditions) => {
   document.getElementById(ids[0]).classList.add('hidden-board');
   document.getElementById(ids[1]).classList.remove('hidden-board');
 
-  if (hitMode) hideScreen();
   const btnValues = {};
-  btnValues[ids[0]] = true;
-  btnValues[ids[1]] = false;
+  if (hitMode) {
+    hideScreen();
+    btnValues[ids[0]] = ['hidden'];
+    btnValues[ids[1]] = ['disabled'];
+  } else {
+    btnValues[ids[0]] = ['hidden', 'disabled'];
+    btnValues[ids[1]] = [];
+  }
+
   modifyButtons(btnValues);
 };
 
