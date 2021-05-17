@@ -48,9 +48,9 @@ function domGame(dependencies) {
 
   const commonEvaluation = () => {
     if (!started) throw new Error('Please start the game');
-    // if (currentPlayer.ships.length !== 15) {
-    //   throw new Error('Insufficient ships');
-    // }
+    if (currentPlayer.ships.length !== 15) {
+      throw new Error('Insufficient ships');
+    }
     if (currentPath) {
       toggleCurrentPath();
       currentPath = false;

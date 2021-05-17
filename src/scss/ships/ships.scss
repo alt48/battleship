@@ -1,4 +1,14 @@
-.current-ship { background: orange !important; }
+.current-ship {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.current-ship:before {
+  content: "!";
+  font-weight: bold;
+  font-size: 2em;
+  color: #ffff99;
+}
 .board-Carrier { background: #ed635e !important; }
 .board-Battleship { background: #c2bf56 !important; }
 .board-Submarine { background: #7e9db4 !important; }
