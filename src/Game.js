@@ -44,7 +44,7 @@ function isReset() {
 }
 
 function createShip(pos) {
-  currentPlayer.addShip(pos);
+  return currentPlayer.boardObj.addShip(pos);
 }
 
 function attemptToHit(coord) {

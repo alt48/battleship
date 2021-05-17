@@ -7,7 +7,7 @@ let attemptToHitMock;
 let game;
 
 beforeEach(() => {
-  createShipMock = jest.fn();
+  createShipMock = jest.fn().mockReturnValue({ type: 'Battleship' });;
   startMock = jest.fn();
   changeCurrentPlayerMock = jest.fn();
   attemptToHitMock = jest.fn();
@@ -57,12 +57,12 @@ test('DOM change current player', () => {
       },
     },
   };
-  const startEvaluationMock = jest.fn();
+  const commonEvaluationMock = jest.fn();
   game.domChangePlayer(eventMock, {
-    startEvaluation: startEvaluationMock,
+    commonEvaluation: commonEvaluationMock,
   });
 
-  expect(startEvaluationMock.mock.calls.length).toBe(1);
+  expect(commonEvaluationMock.mock.calls.length).toBe(1);
 
   expect(removeMock.mock.calls.length).toBe(1);
   expect(appendChildMock.mock.calls.length).toBe(1);
@@ -77,12 +77,16 @@ test('DOM start battleship', () => {
       remove: removeMock,
     },
   };
-  const startEvaluationMock = jest.fn();
+  const commonEvaluationMock = jest.fn();
+  const hideScreenMock = jest.fn();
   game.domStartBattleship(eventMock, {
-    startEvaluation: startEvaluationMock,
+    commonEvaluation: commonEvaluationMock,
+    hideScreen: hideScreenMock,
   });
 
-  expect(startEvaluationMock.mock.calls.length).toBe(1);
+  expect(commonEvaluationMock.mock.calls.length).toBe(1);
+  expect(hideScreenMock.mock.calls.length).toBe(1);
+
   expect(removeMock.mock.calls.length).toBe(1);
 
   expect(game.getAttrs().hitMode).toBe(true);
@@ -118,10 +122,15 @@ test('point ship', () => {
 });
 
 test('begin path (1)', () => {
-  game.beginPath([0, 0]);
+  game.beginPath([0, 0], {
+    focusToggler: jest.fn(),
+  });
   expect(game.getAttrs().currentPath).toEqual([0, 0]);
 
-  game.beginPath([3, 0]);
+  game.beginPath([3, 0], {
+    styleFunction: jest.fn(),
+    focusToggler: jest.fn(),
+  });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 0], [1, 0], [2, 0], [3, 0] ],
   ]);
@@ -129,12 +138,54 @@ test('begin path (1)', () => {
 });
 
 test('begin path (2)', () => {
-  game.beginPath([0, 9]);
+  game.beginPath([0, 9], {
+    focusToggler: jest.fn(),
+  });
   expect(game.getAttrs().currentPath).toEqual([0, 9]);
 
-  game.beginPath([0, 7]);
+  game.beginPath([0, 7], {
+    styleFunction: jest.fn(),
+    focusToggler: jest.fn(),
+  });
   expect(createShipMock.mock.calls[0]).toEqual([
     [ [0, 9], [0, 8], [0, 7] ],
   ]);
   expect(game.getAttrs().currentPath).toBe(false);
 });
+
+test('begin path - reset path', () => {
+  game.beginPath([0, 0], {
+    focusToggler: jest.fn(),
+  });
+  expect(game.getAttrs().currentPath).toEqual([0, 0]);
+
+  game.beginPath([0, 0], {
+    focusToggler: jest.fn(),
+  });
+  expect(createShipMock.mock.calls.length).toBe(0);
+  expect(game.getAttrs().currentPath).toBe(false);
+});
+
+// test('get ship orientation (horizontal)', () => {
+//   expect(
+//     game.getShipOrientation([[0, 1], [0, 2], [0, 3]])
+//   ).toBe('horizontal');
+//   expect(
+//     game.getShipOrientation([[0, 3], [0, 2], [0, 1]])
+//   ).toBe('horizontal-reverse');
+// });
+//
+// test('get ship orientation (vertical)', () => {
+//   expect(
+//     game.getShipOrientation([[1, 0], [2, 0], [3, 0]])
+//   ).toBe('vertical');
+//   expect(
+//     game.getShipOrientation([[3, 0], [2, 0], [1, 0]])
+//   ).toBe('vertical-reverse');
+// });
+//
+// test('get ship orientation (error)', () => {
+//   expect(
+//     () => game.getShipOrientation([[1, 2], [3, 4], [5, 6]])
+//   ).toThrow('Invalid positions');
+// });

@@ -1,4 +1,6 @@
 import traversePath from './traversePath';
+import { hideBoard, hideScreen } from './domHideBoard';
+import styleCoords from './domStyleCells';
 import PubSub from './PubSub';
 
 function domGame(dependencies) {
@@ -16,34 +18,6 @@ function domGame(dependencies) {
   let firstPlayer = false;
   let secondPlayer = false;
 
-  const getHideIds = (...revConditions) => {
-    let ids = ['sp-board', 'fp-board'];
-    revConditions.forEach((cond) => {
-      if (cond) ids = ids.reverse();
-    });
-    return ids;
-  };
-
-  const modifyButtons = (ids) => {
-    Object.keys(ids).forEach((id) => {
-      Array.from(document.querySelectorAll(`#${id} button`)).forEach((btn) => {
-        const modBtn = btn;
-        modBtn.disabled = ids[id];
-      });
-    });
-  };
-
-  const hideBoard = () => {
-    const ids = getHideIds(hitMode, currentPlayer === secondPlayer);
-    document.getElementById(ids[0]).classList.add('hidden-board');
-    document.getElementById(ids[1]).classList.remove('hidden-board');
-
-    const btnValues = {};
-    btnValues[ids[0]] = true;
-    btnValues[ids[1]] = false;
-    modifyButtons(btnValues);
-  };
-
   const createButton = (props, callback) => {
     const button = document.createElement('button');
     Object.keys(props).forEach((prop) => {
@@ -59,23 +33,45 @@ function domGame(dependencies) {
     parentElm.appendChild(createButton(...btnProps));
   };
 
-  const startEvaluation = () => {
+  const getCurrentBoardId = () => (
+    currentPlayer === firstPlayer
+      ? 'fp-board'
+      : 'sp-board'
+  );
+
+  const toggleCurrentPath = () => {
+    const cell = document.querySelector(
+      `#${getCurrentBoardId()} [data-coord="${currentPath.join('#')}"]`,
+    );
+    cell.classList.toggle('current-ship');
+  };
+
+  const commonEvaluation = () => {
     if (!started) throw new Error('Please start the game');
+    if (currentPlayer.ships.length !== 15) {
+      throw new Error('Insufficient ships');
+    }
+    if (currentPath) {
+      toggleCurrentPath();
+      currentPath = false;
+    }
   };
 
   const domStartBattleship = (e, attrs = {
-    startEvaluation,
+    commonEvaluation,
+    hideScreen,
   }) => {
-    attrs.startEvaluation();
+    attrs.commonEvaluation();
     e.target.remove();
     hitMode = true;
+    attrs.hideScreen();
     changeCurrentPlayer();
   };
 
   const domChangePlayer = (e, attrs = {
-    startEvaluation,
+    commonEvaluation,
   }) => {
-    attrs.startEvaluation();
+    attrs.commonEvaluation();
     cleanStatusTo(e.target, [
       { textContent: 'Start Game', id: 'start-game' },
       domStartBattleship,
@@ -92,30 +88,30 @@ function domGame(dependencies) {
     start();
   };
 
-  const checkPlayer = (id) => {
-    let val;
-    if (currentPlayer === firstPlayer) {
-      val = id === 'fp-board';
-    } else if (currentPlayer === secondPlayer) {
-      val = id === 'sp-board';
-    }
-    return val;
-  };
-
-  const evaluatePath = (id) => {
+  const evaluatePath = (target) => {
     if (!started) throw new Error('Please start the game');
-    let rightBoard = checkPlayer(id);
+    let rightBoard = target.parentElement.id === getCurrentBoardId();
     if (hitMode) rightBoard = !rightBoard;
-    if (!rightBoard) throw new Error('You can\'t do that');
+    if (!rightBoard || target.className.includes('hit-button')) {
+      throw new Error('You can\'t do that');
+    }
   };
 
-  const beginPath = (coord) => {
+  const beginPath = (coord, attrs = {
+    styleFunction: styleCoords,
+    focusToggler: toggleCurrentPath,
+  }) => {
     if (currentPath) {
-      const path = traversePath(currentPath, coord);
-      createShip(path);
+      if (!currentPath.every((i, idx) => i === coord[idx])) {
+        const path = traversePath(currentPath, coord);
+        createShip(path);
+        attrs.styleFunction(path, getCurrentBoardId());
+      }
+      attrs.focusToggler();
       currentPath = false;
     } else {
       currentPath = coord;
+      attrs.focusToggler();
     }
   };
 
@@ -125,8 +121,9 @@ function domGame(dependencies) {
     defaultAction: beginPath,
   }) => {
     const coord = e.target.dataset.coord.split('#').map((i) => +i);
-    attrs.pointEvaluation(e.target.parentElement.id);
+    attrs.pointEvaluation(e.target);
     if (attrs.hitCondition) {
+      e.target.classList.add('hit-button');
       attemptToHit(coord);
     } else {
       attrs.defaultAction(coord);
@@ -140,6 +137,10 @@ function domGame(dependencies) {
     firstPlayer = false;
     secondPlayer = false;
     console.log(winner);
+  };
+
+  const toggleBoards = () => {
+    hideBoard(hitMode, [currentPlayer === secondPlayer]);
   };
 
   const changePlayer = (player) => {
@@ -168,7 +169,7 @@ function domGame(dependencies) {
   PubSub.subscribe('game#first-player', setFirstPlayer);
   PubSub.subscribe('game#second-player', setSecondPlayer);
   PubSub.subscribe('game#change-player', changePlayer);
-  PubSub.subscribe('game#change-player', hideBoard);
+  PubSub.subscribe('game#change-player', toggleBoards);
   PubSub.subscribe('game#finish-game', domFinish);
 
   return {

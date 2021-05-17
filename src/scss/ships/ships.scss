@@ -1,0 +1,61 @@
+.current-ship {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.current-ship:before {
+  content: "!";
+  font-weight: bold;
+  font-size: 2em;
+  color: #ffff99;
+}
+.board-Carrier { background: #ed635e !important; }
+.board-Battleship { background: #c2bf56 !important; }
+.board-Submarine { background: #7e9db4 !important; }
+.board-Destroyer { background: #ee7d77 !important; }
+
+$parts: SHIP-head, SHIP-body, SHIP-tail;
+$orientations: horizontal, horizontal-reverse, vertical, vertical-reverse;
+
+.sea-button {
+  background-image: url("images/sea.png");
+}
+
+@each $part in $parts {
+  @each $orientation in $orientations {
+    $mix: #{$part}-#{$orientation};
+    .#{$mix} {
+      background: url("images/#{to-lower-case($mix)}.png");
+    }
+  }
+}
+
+.gray-sea-button {
+  background-image: url("images/sea-gray.png");
+  &:hover {
+    outline: none;
+  }
+}
+
+.hit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hit-button:after {
+  content: "";
+  height: 16px;
+  width: 16px;
+  background: rgba(200, 0, 0, 0.7);
+  transform: rotate(-22.5deg);
+}
+
+.hit-button:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  background: rgba(200, 0, 0, 0.7);
+  transform: rotate(22.5deg);
+}

@@ -49,7 +49,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.png$/,
+        test: /\.(png|webp)$/,
         type: 'asset/resource',
         generator: {
           filename: 'static/[hash][ext][query]',
