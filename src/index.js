@@ -20,6 +20,7 @@ function makeBoard(element) {
     for (let y = 0; y < 10; y += 1) {
       const button = document.createElement('button');
       button.dataset.coord = `${i}#${y}`;
+      button.classList.add('sea-button');
       element.appendChild(button);
     }
   }

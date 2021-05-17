@@ -9,13 +9,11 @@
     width: 35px;
     height: 32px;
     border: none;
-    background-image: url("images/sea.png");
     &:hover, &:focus {
       position: relative;
       outline: thick dashed #aa0000;
     }
     &:disabled {
-      background-image: url("images/sea-gray.png") !important;
       &:hover {
         outline: none;
       }
@@ -26,7 +24,6 @@
 #fp-board, #sp-board {
   display: grid;
   grid-template: repeat(10, 1fr) / repeat(10, 1fr);
-  grid-gap: 3px;
   margin: 2.5rem;
 }
 

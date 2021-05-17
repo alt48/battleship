@@ -7,11 +7,22 @@
 $parts: SHIP-head, SHIP-body, SHIP-tail;
 $orientations: horizontal, horizontal-reverse, vertical, vertical-reverse;
 
+.sea-button {
+  background-image: url("images/sea.png");
+}
+
 @each $part in $parts {
   @each $orientation in $orientations {
     $mix: #{$part}-#{$orientation};
     .#{$mix} {
-      background: url("images/#{to-lower-case($mix)}.png") !important;
+      background: url("images/#{to-lower-case($mix)}.png");
     }
+  }
+}
+
+.gray-sea-button {
+  background-image: url("images/sea-gray.png");
+  &:hover {
+    outline: none;
   }
 }

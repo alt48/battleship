@@ -23,7 +23,7 @@ const modifyButtons = (ids) => {
       const modBtn = button;
       modBtn.disabled = ids[id].includes('disabled');
       const method = ids[id].includes('hidden') ? 'add' : 'remove';
-      modBtn.classList[method]('hidden-cell');
+      modBtn.classList[method]('gray-sea-button');
     });
   });
 };
