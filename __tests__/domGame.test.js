@@ -41,25 +41,13 @@ test('DOM start', () => {
 });
 
 test('DOM change current player', () => {
-  const commonEvaluationMock = jest.fn();
-  game.domChangePlayer({
-    commonEvaluation: commonEvaluationMock,
-  });
+  game.domChangePlayer();
 
-  expect(commonEvaluationMock.mock.calls.length).toBe(1);
   expect(changeCurrentPlayerMock.mock.calls.length).toBe(1);
 });
 
 test('DOM start battleship', () => {
-  const commonEvaluationMock = jest.fn();
-  const hideScreenMock = jest.fn();
-  game.domStartBattleship({
-    commonEvaluation: commonEvaluationMock,
-    hideScreen: hideScreenMock,
-  });
-
-  expect(commonEvaluationMock.mock.calls.length).toBe(1);
-  expect(hideScreenMock.mock.calls.length).toBe(1);
+  game.domStartBattleship();
 
   expect(game.getAttrs().hitMode).toBe(true);
   expect(changeCurrentPlayerMock.mock.calls.length).toBe(1);

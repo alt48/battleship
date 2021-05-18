@@ -1,0 +1,9 @@
+#ship-num {
+  margin-top: 2rem;
+  table {
+    margin: 0 auto;
+  }
+  td:nth-child(2), td:nth-child(3) {
+    text-align: left;
+  }
+}

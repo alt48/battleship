@@ -15,6 +15,8 @@ const game = domGame({
   attemptToHit,
 });
 
+game.setup();
+
 function makeBoard(element) {
   for (let i = 0; i < 10; i += 1) {
     for (let y = 0; y < 10; y += 1) {
