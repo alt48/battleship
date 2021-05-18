@@ -12,7 +12,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 2;
+  const maxShips = 15;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -20,24 +20,28 @@ function domGame(dependencies) {
   let firstPlayer = false;
   let secondPlayer = false;
 
-  const getCurrentBoardId = () => (
-    currentPlayer === firstPlayer
-      ? 'fp-board'
-      : 'sp-board'
-  );
-
-  const toggleCurrentPath = () => {
-    const cell = document.querySelector(
-      `#${getCurrentBoardId()} [data-coord="${currentPath.join('#')}"]`,
-    );
-    cell.classList.toggle('current-ship');
+  const domStart = (e) => {
+    e.target.remove();
+    started = true;
+    start();
+    PubSub.publish('domGame#dom-start');
   };
 
-  const commonEvaluation = () => {
-    if (currentPath) {
-      toggleCurrentPath();
-      currentPath = false;
+  const pointShip = (e, hitCond = hitMode) => {
+    const coord = e.target.dataset.coord.split('#').map((i) => +i);
+    PubSub.publish('domGame#evaluate-path', e.target);
+    if (hitCond) {
+      e.target.classList.add('hit-button');
+      attemptToHit(coord);
+    } else {
+      PubSub.publish('domGame#deal-with-point', coord);
     }
+  };
+
+  const domChangePlayer = () => {
+    PubSub.publish('domGame#common-evaluation');
+    changeCurrentPlayer();
+    PubSub.publish('domGame#dom-change-player');
   };
 
   const domStartBattleship = () => {
@@ -47,18 +51,20 @@ function domGame(dependencies) {
     PubSub.publish('domGame#dom-start-battleship');
   };
 
-  const domChangePlayer = () => {
-    PubSub.publish('domGame#common-evaluation');
-    changeCurrentPlayer();
-    PubSub.publish('domGame#dom-change-player');
+  const domFinish = (winner) => {
+    hitMode = false;
+    started = false;
+    currentPlayer = false;
+    firstPlayer = false;
+    secondPlayer = false;
+    console.log(winner);
   };
 
-  const domStart = (e) => {
-    e.target.remove();
-    started = true;
-    start();
-    PubSub.publish('domGame#dom-start');
-  };
+  const getCurrentBoardId = () => (
+    currentPlayer === firstPlayer
+      ? 'fp-board'
+      : 'sp-board'
+  );
 
   const evaluatePath = (target) => {
     if (!started) throw new Error('Please start the game');
@@ -69,37 +75,22 @@ function domGame(dependencies) {
     }
   };
 
-  const pathEvaluation = (path, attrs = {
-    currentPlayer,
-  }) => {
-    path.forEach((coord) => {
-      if (attrs.currentPlayer.board[coord[0]][coord[1]] !== '') {
-        throw new Error('Ocuppied!');
-      }
-    });
-  };
-
-  const beginPath = (coord, attrs = {
-    styleFunction: styleCoords,
-    focusToggler: toggleCurrentPath,
-    pathEvaluation,
-  }) => {
-    attrs.pathEvaluation([coord]);
+  const beginPath = (coord) => {
+    PubSub.publish('domGame#path-post-evaluation', [coord]);
 
     if (currentPath) {
       if (!currentPath.every((i, idx) => i === coord[idx])) {
         const path = traversePath(currentPath, coord);
-        attrs.pathEvaluation(path);
+        PubSub.publish('domGame#path-post-evaluation', path);
 
-        const ship = createShip(path);
-        PubSub.publish('game#create-ship', ship);
-        attrs.styleFunction(path, getCurrentBoardId());
+        createShip(path);
+        PubSub.publish('domGame#styleCoords', path, getCurrentBoardId());
       }
-      attrs.focusToggler();
+      PubSub.publish('domGame#toggle-current-path');
       currentPath = false;
     } else {
       currentPath = coord;
-      attrs.focusToggler();
+      PubSub.publish('domGame#toggle-current-path');
     }
   };
 
@@ -115,44 +106,26 @@ function domGame(dependencies) {
     }
   };
 
-  const pointShip = (e, attrs = {
-    pointEvaluation: evaluatePath,
-    hitCondition: hitMode,
-    defaultAction: dealWithPoint,
-  }) => {
-    const coord = e.target.dataset.coord.split('#').map((i) => +i);
-    attrs.pointEvaluation(e.target);
-    if (attrs.hitCondition) {
-      e.target.classList.add('hit-button');
-      attemptToHit(coord);
-    } else {
-      attrs.defaultAction(coord);
+  const toggleCurrentPath = () => {
+    const cell = document.querySelector(
+      `#${getCurrentBoardId()} [data-coord="${currentPath.join('#')}"]`,
+    );
+    cell.classList.toggle('current-ship');
+  };
+
+  const commonEvaluation = () => {
+    if (currentPath) {
+      toggleCurrentPath();
+      currentPath = false;
     }
   };
 
-  const domFinish = (winner) => {
-    hitMode = false;
-    started = false;
-    currentPlayer = false;
-    firstPlayer = false;
-    secondPlayer = false;
-    console.log(winner);
-  };
-
-  const toggleBoards = () => {
-    hideBoard(hitMode, [currentPlayer === secondPlayer]);
-  };
-
-  const changePlayer = (player) => {
-    currentPlayer = player;
-  };
-
-  const setFirstPlayer = (player) => {
-    firstPlayer = player;
-  };
-
-  const setSecondPlayer = (player) => {
-    secondPlayer = player;
+  const pathPostEvaluation = (path, player = currentPlayer) => {
+    path.forEach((coord) => {
+      if (player.board[coord[0]][coord[1]] !== '') {
+        throw new Error('Ocuppied!');
+      }
+    });
   };
 
   const getAttrs = () => (
@@ -167,21 +140,35 @@ function domGame(dependencies) {
   );
 
   const setup = () => {
-    PubSub.subscribe('game#first-player', setFirstPlayer);
-    PubSub.subscribe('game#second-player', setSecondPlayer);
-    PubSub.subscribe('game#change-player', changePlayer);
-    PubSub.subscribe('game#change-player', toggleBoards);
+    // Game events
+    PubSub.subscribe('game#first-player', (player) => {
+      firstPlayer = player;
+    });
+    PubSub.subscribe('game#second-player', (player) => {
+      secondPlayer = player;
+    });
+    PubSub.subscribe('game#change-player', (player) => {
+      currentPlayer = player;
+    });
+    PubSub.subscribe('game#change-player', () => {
+      hideBoard(hitMode, [currentPlayer === secondPlayer]);
+    });
     PubSub.subscribe('game#finish-game', domFinish);
     PubSub.subscribe('game#create-ship', updateShipNum);
 
+    // DOM game events
     PubSub.subscribe('domGame#dom-start', renderShipNum);
+    PubSub.subscribe('domGame#evaluate-path', evaluatePath);
+    PubSub.subscribe('domGame#deal-with-point', dealWithPoint);
+    PubSub.subscribe('domGame#common-evaluation', commonEvaluation);
     PubSub.subscribe('domGame#dom-change-player', () => {
-      if (!hitMode) {
-        renderShipNum();
-      }
+      if (!hitMode) renderShipNum();
     });
     PubSub.subscribe('domGame#dom-start-battleship', hideScreen);
-    PubSub.subscribe('domGame#common-evaluation', commonEvaluation);
+
+    PubSub.subscribe('domGame#path-post-evaluation', pathPostEvaluation);
+    PubSub.subscribe('domGame#styleCoords', styleCoords);
+    PubSub.subscribe('domGame#toggle-current-path', toggleCurrentPath);
   };
 
   return {
@@ -190,7 +177,7 @@ function domGame(dependencies) {
     domStartBattleship,
     pointShip,
     beginPath,
-    pathEvaluation,
+    pathPostEvaluation,
     getAttrs,
     setup,
   };

@@ -1,7 +1,7 @@
 import Gameboard from '../src/Gameboard';
 
 test('10x10 empty board', () => {
-  const board = Gameboard().board;
+  const { board } = Gameboard();
 
   expect(board.length).toBe(10);
   board.forEach((row) => {

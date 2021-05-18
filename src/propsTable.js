@@ -1,4 +1,4 @@
-const makeShipProps = (props) => {
+function makeShipProps(props) {
   const row = document.createElement('tr');
 
   const number = document.createElement('td');
@@ -15,11 +15,9 @@ const makeShipProps = (props) => {
   row.appendChild(length);
 
   return row;
-};
+}
 
-const renderShipNum = () => {
-  const container = document.getElementById('ship-num');
-  container.innerHTML = '';
+function makeTable() {
   const table = document.createElement('table');
   const tbody = document.createElement('tbody');
   const ships = [
@@ -33,12 +31,18 @@ const renderShipNum = () => {
     tbody.appendChild(row);
   });
   table.appendChild(tbody);
-  container.appendChild(table);
-};
+  return table;
+}
 
-const updateShipNum = (shipObj) => {
+function renderShipNum() {
+  const container = document.getElementById('ship-num');
+  container.innerHTML = '';
+  container.appendChild(makeTable());
+}
+
+function updateShipNum(shipObj) {
   const cell = document.getElementById(`${shipObj.type}-num`);
   cell.textContent = +cell.textContent - 1;
-};
+}
 
 export { renderShipNum, updateShipNum };

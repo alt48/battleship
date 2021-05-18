@@ -1,12 +1,12 @@
-const getHideIds = (...revConditions) => {
+function getHideIds(...revConditions) {
   let ids = ['sp-board', 'fp-board'];
   revConditions.forEach((cond) => {
     if (cond) ids = ids.reverse();
   });
   return ids;
-};
+}
 
-const hideScreen = () => {
+function hideScreen() {
   const elm = document.createElement('div');
   elm.id = 'board-layer';
   elm.textContent = 'Click here';
@@ -14,21 +14,23 @@ const hideScreen = () => {
     e.target.remove();
   });
   document.body.insertBefore(elm, document.body.firstElementChild);
-};
+}
 
-const modifyButtons = (ids) => {
+function parseButton(button, attrs) {
+  const modBtn = button;
+  modBtn.disabled = attrs.includes('disabled');
+  const method = attrs.includes('hidden') ? 'add' : 'remove';
+  modBtn.classList[method]('gray-sea-button');
+}
+
+function modifyButtons(ids) {
   Object.keys(ids).forEach((id) => {
     const buttons = Array.from(document.querySelectorAll(`#${id} button`));
-    buttons.forEach((button) => {
-      const modBtn = button;
-      modBtn.disabled = ids[id].includes('disabled');
-      const method = ids[id].includes('hidden') ? 'add' : 'remove';
-      modBtn.classList[method]('gray-sea-button');
-    });
+    buttons.forEach((btn) => parseButton(btn, ids[id]));
   });
-};
+}
 
-const hideBoard = (hitMode, conditions) => {
+function hideBoard(hitMode, conditions) {
   const ids = getHideIds(...conditions);
   document.getElementById(ids[0]).classList.add('hidden-board');
   document.getElementById(ids[1]).classList.remove('hidden-board');
@@ -44,6 +46,6 @@ const hideBoard = (hitMode, conditions) => {
   }
 
   modifyButtons(btnValues);
-};
+}
 
 export { hideBoard, hideScreen };

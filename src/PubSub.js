@@ -14,9 +14,9 @@ const PubSub = {
       }
     }
   },
-  publish(en, data) {
+  publish(en, ...data) {
     if (this.events[en]) {
-      this.events[en].forEach((fn) => fn(data));
+      this.events[en].forEach((fn) => fn(...data));
     }
   },
 };
