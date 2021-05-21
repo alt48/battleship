@@ -14,7 +14,7 @@
       outline: thick dashed #aa0000;
     }
     &:disabled {
-      &:hover {
+      &:hover, &:focus {
         outline: none;
       }
     }

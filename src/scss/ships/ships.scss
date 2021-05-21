@@ -41,21 +41,18 @@ $orientations: horizontal, horizontal-reverse, vertical, vertical-reverse;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.hit-button:after {
-  content: "";
-  height: 16px;
-  width: 16px;
-  background: rgba(200, 0, 0, 0.7);
-  transform: rotate(-22.5deg);
-}
-
-.hit-button:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  background: rgba(200, 0, 0, 0.7);
-  transform: rotate(22.5deg);
+  &:before, &:after {
+    z-index: 998;
+    content: "";
+    height: 24px;
+    width: 24px;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  &:before {
+    position: absolute;
+    transform: rotate(22.5deg);
+  }
+  &:after {
+    transform: rotate(-22.5deg);
+  }
 }

@@ -19,8 +19,15 @@ function hideScreen() {
 function parseButton(button, attrs) {
   const modBtn = button;
   modBtn.disabled = attrs.includes('disabled');
-  const method = attrs.includes('hidden') ? 'add' : 'remove';
-  modBtn.classList[method]('gray-sea-button');
+  let method;
+  if (!attrs.includes('hidden')) {
+    method = 'remove';
+  } else {
+    method = 'add';
+  }
+  if (!(method === 'add' && modBtn.className.includes('hit-button'))) {
+    modBtn.classList[method]('gray-sea-button');
+  }
 }
 
 function modifyButtons(ids) {
