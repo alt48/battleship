@@ -1,7 +1,8 @@
 #ship-num {
-  margin-top: 2rem;
   table {
+    user-select: none;
     margin: 0 auto;
+    width: 310px;
   }
   td:nth-child(2), td:nth-child(3) {
     text-align: left;

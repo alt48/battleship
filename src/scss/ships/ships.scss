@@ -14,12 +14,12 @@
 .board-Submarine { background: #7e9db4 !important; }
 .board-Destroyer { background: #ee7d77 !important; }
 
-$parts: SHIP-head, SHIP-body, SHIP-tail;
-$orientations: horizontal, horizontal-reverse, vertical, vertical-reverse;
-
 .sea-button {
   background-image: url("images/sea.png");
 }
+
+$parts: SHIP-head, SHIP-body, SHIP-tail;
+$orientations: horizontal, horizontal-reverse, vertical, vertical-reverse, template;
 
 @each $part in $parts {
   @each $orientation in $orientations {

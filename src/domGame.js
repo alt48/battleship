@@ -1,7 +1,7 @@
 import traversePath from './traversePath';
 import { hideBoard, hideScreen } from './domHideBoard';
 import styleCoords from './domStyleCells';
-import { renderShipNum, updateShipNum } from './propsTable';
+import { renderShipNum, updateShipNum } from './domShipNumber';
 import PubSub from './PubSub';
 
 function domGame(dependencies) {
