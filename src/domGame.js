@@ -12,7 +12,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 15;
+  const maxShips = 1;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -25,6 +25,10 @@ function domGame(dependencies) {
   const domStart = (e) => {
     e.target.remove();
     started = true;
+
+    PubSub.publish('domGame#make-board', document.getElementById('fp-board'));
+    PubSub.publish('domGame#make-board', document.getElementById('sp-board'));
+
     start();
     PubSub.publish('domGame#dom-start');
   };
@@ -60,7 +64,7 @@ function domGame(dependencies) {
     const button = document.createElement('button');
     button.textContent = 'Start';
     button.addEventListener('click', domStart);
-    document.getElementById('status').appendChild(button);
+    document.getElementById('game-props').appendChild(button);
   };
 
   const domFinish = () => {
@@ -72,6 +76,19 @@ function domGame(dependencies) {
     hideScreen(hideMessage);
     makeStartButton();
   };
+
+  function makeBoard(element) {
+    element.innerHTML = '';
+    for (let i = 0; i < 10; i += 1) {
+      for (let y = 0; y < 10; y += 1) {
+        const button = document.createElement('button');
+        button.dataset.coord = `${i}#${y}`;
+        button.classList.add('sea-button');
+        button.addEventListener('click', pointShip);
+        element.appendChild(button);
+      }
+    }
+  }
 
   const getCurrentBoardId = () => (
     currentPlayer === firstPlayer
@@ -128,7 +145,7 @@ function domGame(dependencies) {
       if (currentPlayer === firstPlayer) {
         domChangePlayer();
       } else {
-        document.getElementById('ship-num').remove();
+        document.getElementById('game-props').innerHTML = '';
         domStartBattleship();
       }
     }
@@ -199,6 +216,7 @@ function domGame(dependencies) {
       if (!hitMode) renderShipNum();
     });
 
+    PubSub.subscribe('domGame#make-board', makeBoard);
     PubSub.subscribe('domGame#path-post-evaluation', pathPostEvaluation);
     PubSub.subscribe('domGame#styleCoords', styleCoords);
     PubSub.subscribe('domGame#toggle-current-path', toggleCurrentPath);
@@ -216,6 +234,7 @@ function domGame(dependencies) {
     pathPostEvaluation,
     getAttrs,
     setup,
+    makeStartButton,
   };
 }
 

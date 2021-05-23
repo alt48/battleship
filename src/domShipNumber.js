@@ -59,7 +59,7 @@ function makeTable() {
 }
 
 function renderShipNum() {
-  const container = document.getElementById('ship-num');
+  const container = document.getElementById('game-props');
   container.innerHTML = '';
   container.appendChild(makeTable());
 }

@@ -27,7 +27,7 @@ h1 {
   font-weight: bold;
 }
 
-@import "./ship_number";
 @import "./boards/boards";
 @import "./ships/ships";
 @import "./game-status";
+@import "./game-props";
