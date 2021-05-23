@@ -1,0 +1,33 @@
+#game-status {
+  max-width: 500px;
+  margin: 0 auto;
+  position: absolute;
+  top: 0;
+  padding: 2rem;
+  * {
+    animation-duration: 0.5s;
+    animation-name: slidein;
+    margin-bottom: 0.4rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: 15px;
+    padding: 0.6rem 1rem;
+  }
+}
+
+.game-error {
+  color: #aa0000;
+  background: #fdd;
+}
+
+@keyframes slidein {
+  from {
+    margin-top: -2.6rem;
+  }
+  to {
+    margin-top: 0;
+  }
+}

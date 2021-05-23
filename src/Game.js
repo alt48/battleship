@@ -5,8 +5,10 @@ let currentPlayer = false;
 let opponentPlayer = false;
 let firstPlayer = false;
 let secondPlayer = false;
+let gameException = false;
 
 function start(playerFunc = Player) {
+  gameException = false;
   firstPlayer = playerFunc();
   PubSub.publish('game#first-player', firstPlayer);
   secondPlayer = playerFunc();
@@ -43,9 +45,49 @@ function isReset() {
   ].every((i) => !i);
 }
 
+function evaluateShip(length) {
+  let type;
+  switch (length) {
+    case 5:
+      type = { name: 'Carrier', quantity: 1 }; break;
+    case 4:
+      type = { name: 'Battleship', quantity: 2 }; break;
+    case 3:
+      type = { name: 'Submarine', quantity: 7 }; break;
+    case 2:
+      type = { name: 'Destroyer', quantity: 5 }; break;
+    default:
+      PubSub.publish('game#exception', 'Invalid length');
+      gameException = true;
+      break;
+  }
+  if (!gameException) {
+    const ships = currentPlayer.ships.filter((i) => i.type === type.name);
+    if (ships.length === type.quantity) {
+      PubSub.publish('game#exception', `Can't add ${type.name}`);
+      gameException = true;
+    }
+  }
+}
+
+function dealWithEvaluation(callback) {
+  let exit;
+  if (gameException) {
+    gameException = false;
+    exit = 1;
+  } else {
+    callback();
+    exit = 0;
+  }
+  return exit;
+}
+
 function createShip(pos) {
-  const ship = currentPlayer.boardObj.addShip(pos);
-  PubSub.publish('game#create-ship', ship);
+  PubSub.publish('game#evaluate-ship', pos.length);
+  return dealWithEvaluation(() => {
+    const ship = currentPlayer.boardObj.addShip(pos);
+    PubSub.publish('game#create-ship', ship);
+  });
 }
 
 function attemptToHit(coord) {
@@ -66,6 +108,10 @@ function attemptToHit(coord) {
   }
 }
 
+function gameSetup() {
+  PubSub.subscribe('game#evaluate-ship', evaluateShip);
+}
+
 export {
   start,
   changeCurrentPlayer,
@@ -73,4 +119,6 @@ export {
   isReset,
   createShip,
   attemptToHit,
+  evaluateShip,
+  gameSetup,
 };

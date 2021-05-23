@@ -19,6 +19,7 @@ function domGame(dependencies) {
   let currentPlayer = false;
   let firstPlayer = false;
   let secondPlayer = false;
+  let gameException = false;
 
   const domStart = (e) => {
     e.target.remove();
@@ -30,7 +31,9 @@ function domGame(dependencies) {
   const pointShip = (e, hitCond = hitMode) => {
     const coord = e.target.dataset.coord.split('#').map((i) => +i);
     PubSub.publish('domGame#evaluate-path', e.target);
-    if (hitCond) {
+    if (gameException) {
+      gameException = false;
+    } else if (hitCond) {
       e.target.classList.add('hit-button');
       attemptToHit(coord);
     } else {
@@ -67,27 +70,42 @@ function domGame(dependencies) {
   );
 
   const evaluatePath = (target) => {
-    if (!started) throw new Error('Please start the game');
-    let rightBoard = target.parentElement.id === getCurrentBoardId();
-    if (hitMode) rightBoard = !rightBoard;
-    if (!rightBoard || target.className.includes('hit-button')) {
-      throw new Error('You can\'t do that');
+    try {
+      if (!started) throw new Error('Please start the game');
+      let rightBoard = target.parentElement.id === getCurrentBoardId();
+      if (hitMode) rightBoard = !rightBoard;
+      if (!rightBoard || target.className.includes('hit-button')) {
+        throw new Error('You can\'t do that');
+      }
+    } catch ({ message }) {
+      gameException = true;
+      PubSub.publish('game#exception', message);
     }
   };
 
   const beginPath = (coord) => {
     PubSub.publish('domGame#path-post-evaluation', [coord]);
 
-    if (currentPath) {
+    if (gameException) {
+      gameException = false;
+    } else if (currentPath) {
+      let path;
       if (!currentPath.every((i, idx) => i === coord[idx])) {
-        const path = traversePath(currentPath, coord);
+        path = traversePath(currentPath, coord);
         PubSub.publish('domGame#path-post-evaluation', path);
-
-        createShip(path);
-        PubSub.publish('domGame#styleCoords', path, getCurrentBoardId());
       }
-      PubSub.publish('domGame#toggle-current-path');
-      currentPath = false;
+      if (gameException) {
+        gameException = false;
+      } else {
+        const exitStatus = path ? createShip(path) : 2;
+        if (!exitStatus) {
+          PubSub.publish('domGame#styleCoords', path, getCurrentBoardId());
+        }
+        if (exitStatus !== 1) {
+          PubSub.publish('domGame#toggle-current-path');
+          currentPath = false;
+        }
+      }
     } else {
       currentPath = coord;
       PubSub.publish('domGame#toggle-current-path');
@@ -121,11 +139,16 @@ function domGame(dependencies) {
   };
 
   const pathPostEvaluation = (path, player = currentPlayer) => {
-    path.forEach((coord) => {
-      if (player.board[coord[0]][coord[1]] !== '') {
-        throw new Error('Ocuppied!');
-      }
-    });
+    try {
+      path.forEach((coord) => {
+        if (player.board[coord[0]][coord[1]] !== '') {
+          throw new Error('Occupied!');
+        }
+      });
+    } catch ({ message }) {
+      gameException = true;
+      PubSub.publish('game#exception', message);
+    }
   };
 
   const getAttrs = () => (
