@@ -12,7 +12,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 1;
+  const maxShips = 15;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -25,10 +25,7 @@ function domGame(dependencies) {
   const domStart = (e) => {
     e.target.remove();
     started = true;
-
-    PubSub.publish('domGame#make-board', document.getElementById('fp-board'));
-    PubSub.publish('domGame#make-board', document.getElementById('sp-board'));
-
+    PubSub.publish('domGame#prepare-boards');
     start();
     PubSub.publish('domGame#dom-start');
   };
@@ -77,18 +74,38 @@ function domGame(dependencies) {
     makeStartButton();
   };
 
-  function makeBoard(element) {
-    element.innerHTML = '';
+  const makeSingleBoard = () => {
+    const container = document.createElement('div');
     for (let i = 0; i < 10; i += 1) {
       for (let y = 0; y < 10; y += 1) {
         const button = document.createElement('button');
         button.dataset.coord = `${i}#${y}`;
         button.classList.add('sea-button');
         button.addEventListener('click', pointShip);
-        element.appendChild(button);
+        container.appendChild(button);
       }
     }
-  }
+    return container;
+  };
+
+  const makeBoards = () => {
+    const container = document.getElementById('boards');
+    container.innerHTML = '';
+    ['fp-board', 'sp-board'].forEach((id) => {
+      const board = makeSingleBoard();
+      board.id = id;
+      container.appendChild(board);
+    });
+  };
+
+  const prepareBoards = () => {
+    const title = document.getElementById('game-title');
+    if (title.className.includes('title-maximized')) {
+      title.classList.remove('title-maximized');
+      title.classList.add('title-minimized');
+    }
+    makeBoards();
+  };
 
   const getCurrentBoardId = () => (
     currentPlayer === firstPlayer
@@ -204,7 +221,14 @@ function domGame(dependencies) {
       hideBoard(hitMode, hideMessage, [currentPlayer === secondPlayer]);
       hideMessage = false;
     });
-    PubSub.subscribe('game#finish-game', domFinish);
+    PubSub.subscribe('game#finish-game', () => {
+      const boardId = getCurrentBoardId() === 'sp-board' ? 'fp-board' : 'sp-board';
+      Array.from(document.getElementById(boardId).children).forEach((button) => {
+        const modBtn = button;
+        modBtn.disabled = true;
+      });
+      domFinish();
+    });
     PubSub.subscribe('game#create-ship', updateShipNum);
 
     // DOM game events
@@ -216,7 +240,7 @@ function domGame(dependencies) {
       if (!hitMode) renderShipNum();
     });
 
-    PubSub.subscribe('domGame#make-board', makeBoard);
+    PubSub.subscribe('domGame#prepare-boards', prepareBoards);
     PubSub.subscribe('domGame#path-post-evaluation', pathPostEvaluation);
     PubSub.subscribe('domGame#styleCoords', styleCoords);
     PubSub.subscribe('domGame#toggle-current-path', toggleCurrentPath);

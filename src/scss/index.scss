@@ -22,9 +22,25 @@ body {
   padding-top: 2rem;
 }
 
-h1 {
-  font-size: 1.5rem;
+#game-title {
+  cursor: default;
+  user-select: none;
   font-weight: bold;
+  transition: height 0.5s, font-size 0.5s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-maximized {
+  font-size: 8rem;
+  height: 80vh;
+}
+
+.title-minimized {
+  font-size: 1.5rem;
+  height: 1.5rem;
 }
 
 @import "./boards/boards";
