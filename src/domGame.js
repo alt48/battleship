@@ -12,7 +12,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 15;
+  const maxShips = 1;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -114,16 +114,9 @@ function domGame(dependencies) {
   );
 
   const evaluatePath = (target) => {
-    try {
-      if (!started) throw new Error('Please start the game');
-      let rightBoard = target.parentElement.id === getCurrentBoardId();
-      if (hitMode) rightBoard = !rightBoard;
-      if (!rightBoard || target.className.includes('hit-button')) {
-        throw new Error('You can\'t do that');
-      }
-    } catch ({ message }) {
+    if (target.className.includes('hit-button')) {
       gameException = true;
-      PubSub.publish('game#exception', message);
+      PubSub.publish('game#exception', 'You can\'t do that');
     }
   };
 
@@ -140,15 +133,15 @@ function domGame(dependencies) {
       }
       if (gameException) {
         gameException = false;
-      } else {
-        const exitStatus = path ? createShip(path) : 2;
-        if (!exitStatus) {
-          PubSub.publish('domGame#styleCoords', path, getCurrentBoardId());
-        }
-        if (exitStatus !== 1) {
-          PubSub.publish('domGame#toggle-current-path');
-          currentPath = false;
-        }
+        return;
+      }
+      const exitStatus = path ? createShip(path) : 2;
+      if (!exitStatus) {
+        PubSub.publish('domGame#styleCoords', path, getCurrentBoardId());
+      }
+      if (exitStatus !== 1) {
+        PubSub.publish('domGame#toggle-current-path');
+        currentPath = false;
       }
     } else {
       currentPath = coord;
@@ -183,15 +176,13 @@ function domGame(dependencies) {
   };
 
   const pathPostEvaluation = (path, player = currentPlayer) => {
-    try {
-      path.forEach((coord) => {
-        if (player.board[coord[0]][coord[1]] !== '') {
-          throw new Error('Occupied!');
-        }
-      });
-    } catch ({ message }) {
-      gameException = true;
-      PubSub.publish('game#exception', message);
+    for (let i = 0; i < path.length; i += 1) {
+      const coord = path[i];
+      if (player.board[coord[0]][coord[1]] !== '') {
+        gameException = true;
+        PubSub.publish('game#exception', 'Occupied!');
+        break;
+      }
     }
   };
 
