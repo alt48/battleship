@@ -92,15 +92,21 @@ function createShip(pos) {
 
 function attemptToHit(coord) {
   const square = opponentPlayer.board[coord[0]][coord[1]];
+  let squareStatus = 'Square hit!';
   let winner;
   if (square !== '') {
     square.hit();
+    squareStatus = 'Ship hit!';
     if (opponentPlayer.ships.every((ship) => ship.isSunk)) {
+      squareStatus = 'Winner!';
       winner = currentPlayer === firstPlayer
         ? 'first player'
         : 'second player';
+    } else if (square.isSunk) {
+      squareStatus = `${square.type} sunk!`;
     }
   }
+  PubSub.publish('domGame#set-hide-message', squareStatus);
   if (winner) {
     finish(winner);
   } else {

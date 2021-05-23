@@ -2,10 +2,8 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  * {
-    cursor: pointer;
-  }
   button {
+    cursor: pointer;
     width: 35px;
     height: 32px;
     border: none;
@@ -14,6 +12,7 @@
       outline: thick dashed #aa0000;
     }
     &:disabled {
+      cursor: default;
       &:hover, &:focus {
         outline: none;
       }
@@ -28,6 +27,8 @@
 }
 
 #board-layer {
+  user-select: none;
+  cursor: pointer;
   z-index: 999;
   height: 100vh;
   width: 100vw;
@@ -35,6 +36,19 @@
   top: 0;
   background-color: #ff8888;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+#layer-message {
+  font-weight: bold;
+  font-style: italic;
+  font-size: 5rem;
+  margin-bottom: 2rem;
+}
+
+#layer-click-here {
+  font-weight: bold;
+  color: #555555;
 }

@@ -20,6 +20,7 @@ function domGame(dependencies) {
   let firstPlayer = false;
   let secondPlayer = false;
   let gameException = false;
+  let hideMessage = false;
 
   const domStart = (e) => {
     e.target.remove();
@@ -35,6 +36,7 @@ function domGame(dependencies) {
       gameException = false;
     } else if (hitCond) {
       e.target.classList.add('hit-button');
+      e.target.classList.remove('gray-sea-button');
       attemptToHit(coord);
     } else {
       PubSub.publish('domGame#deal-with-point', coord);
@@ -50,17 +52,25 @@ function domGame(dependencies) {
   const domStartBattleship = () => {
     PubSub.publish('domGame#common-evaluation');
     hitMode = true;
+    hideMessage = 'Battleship!';
     changeCurrentPlayer();
-    PubSub.publish('domGame#dom-start-battleship');
   };
 
-  const domFinish = (winner) => {
+  const makeStartButton = () => {
+    const button = document.createElement('button');
+    button.textContent = 'Start';
+    button.addEventListener('click', domStart);
+    document.getElementById('status').appendChild(button);
+  };
+
+  const domFinish = () => {
     hitMode = false;
     started = false;
     currentPlayer = false;
     firstPlayer = false;
     secondPlayer = false;
-    console.log(winner);
+    hideScreen(hideMessage);
+    makeStartButton();
   };
 
   const getCurrentBoardId = () => (
@@ -174,7 +184,8 @@ function domGame(dependencies) {
       currentPlayer = player;
     });
     PubSub.subscribe('game#change-player', () => {
-      hideBoard(hitMode, [currentPlayer === secondPlayer]);
+      hideBoard(hitMode, hideMessage, [currentPlayer === secondPlayer]);
+      hideMessage = false;
     });
     PubSub.subscribe('game#finish-game', domFinish);
     PubSub.subscribe('game#create-ship', updateShipNum);
@@ -187,11 +198,13 @@ function domGame(dependencies) {
     PubSub.subscribe('domGame#dom-change-player', () => {
       if (!hitMode) renderShipNum();
     });
-    PubSub.subscribe('domGame#dom-start-battleship', hideScreen);
 
     PubSub.subscribe('domGame#path-post-evaluation', pathPostEvaluation);
     PubSub.subscribe('domGame#styleCoords', styleCoords);
     PubSub.subscribe('domGame#toggle-current-path', toggleCurrentPath);
+    PubSub.subscribe('domGame#set-hide-message', (message) => {
+      hideMessage = message;
+    });
   };
 
   return {

@@ -6,12 +6,22 @@ function getHideIds(...revConditions) {
   return ids;
 }
 
-function hideScreen() {
+function hideScreen(message) {
   const elm = document.createElement('div');
   elm.id = 'board-layer';
-  elm.textContent = 'Click here';
-  elm.addEventListener('click', (e) => {
-    e.target.remove();
+
+  const msgCont = document.createElement('div');
+  msgCont.id = 'layer-message';
+  msgCont.textContent = message;
+  elm.appendChild(msgCont);
+
+  const clickHere = document.createElement('div');
+  clickHere.id = 'layer-click-here';
+  clickHere.textContent = '(Click anywhere)';
+  elm.appendChild(clickHere);
+
+  elm.addEventListener('click', () => {
+    document.getElementById('board-layer').remove();
   });
   document.body.insertBefore(elm, document.body.firstElementChild);
 }
@@ -37,14 +47,14 @@ function modifyButtons(ids) {
   });
 }
 
-function hideBoard(hitMode, conditions) {
+function hideBoard(hitMode, message, conditions) {
   const ids = getHideIds(...conditions);
   document.getElementById(ids[0]).classList.add('hidden-board');
   document.getElementById(ids[1]).classList.remove('hidden-board');
 
   const btnValues = {};
   if (hitMode) {
-    hideScreen();
+    hideScreen(message);
     btnValues[ids[0]] = ['hidden'];
     btnValues[ids[1]] = ['disabled'];
   } else {

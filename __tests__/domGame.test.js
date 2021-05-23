@@ -67,6 +67,7 @@ test('point ship', () => {
       },
       classList: {
         add: jest.fn(),
+        remove: jest.fn(),
       },
     },
   };
@@ -80,6 +81,7 @@ test('point ship', () => {
 
   game.pointShip(eventMock, true);
   expect(eventMock.target.classList.add.mock.calls.length).toBe(1);
+  expect(eventMock.target.classList.remove.mock.calls.length).toBe(1);
   expect(attemptToHitMock.mock.calls.length).toBe(1);
 });
 
