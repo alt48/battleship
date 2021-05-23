@@ -8,7 +8,7 @@ let attemptToHitMock;
 let game;
 
 beforeEach(() => {
-  createShipMock = jest.fn().mockReturnValue({ type: 'Battleship' });
+  createShipMock = jest.fn().mockReturnValue(0);
   startMock = jest.fn();
   changeCurrentPlayerMock = jest.fn();
   attemptToHitMock = jest.fn();
@@ -124,8 +124,8 @@ test('path post evaluation', () => {
   };
 
   const domGameExceptionMock = jest.fn();
-  PubSub.subscribe('domGame#exception', domGameExceptionMock);
+  PubSub.subscribe('game#exception', domGameExceptionMock);
 
-  game.pathPostEvaluation([[0, 1]], player),
+  game.pathPostEvaluation([[0, 1]], player);
   expect(domGameExceptionMock.mock.calls).toEqual([['Occupied!']]);
 });

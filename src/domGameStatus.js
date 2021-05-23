@@ -1,3 +1,5 @@
+import PubSub from './PubSub';
+
 const statusMemo = {};
 
 function removeItem(item, msg) {
@@ -18,4 +20,4 @@ function buildError(msg) {
   }
 }
 
-export default buildError;
+PubSub.subscribe('game#exception', buildError);

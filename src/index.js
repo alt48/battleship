@@ -1,4 +1,5 @@
 import './scss/index.scss';
+import './domGameStatus';
 
 import domGame from './domGame';
 import {
@@ -6,7 +7,10 @@ import {
   start,
   changeCurrentPlayer,
   attemptToHit,
+  gameSetup,
 } from './Game';
+
+gameSetup();
 
 const game = domGame({
   createShip,

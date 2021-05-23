@@ -39,20 +39,3 @@ test('add ship (vertical)', () => {
     );
   });
 });
-
-test('ship types', () => {
-  const board = Gameboard();
-  const pairs = [
-    { name: 'Carrier', quantity: 1 },
-    { name: 'Battleship', quantity: 2 },
-    { name: 'Submarine', quantity: 7 },
-    { name: 'Destroyer', quantity: 5 },
-  ];
-  pairs.forEach((type) => {
-    const mock = jest.fn().mockReturnValue({ type: type.name });
-    for (let i = 0; i < type.quantity; i += 1) {
-      board.addShip([[0, 0]], mock);
-    }
-    expect(() => board.addShip([[0, 0]], mock)).toThrow(`Can't add ${type.name}`);
-  });
-});

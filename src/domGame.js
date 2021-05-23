@@ -2,7 +2,6 @@ import traversePath from './traversePath';
 import { hideBoard, hideScreen } from './domHideBoard';
 import styleCoords from './domStyleCells';
 import { renderShipNum, updateShipNum } from './propsTable';
-import buildError from './domGameStatus';
 import PubSub from './PubSub';
 
 function domGame(dependencies) {
@@ -13,7 +12,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 2;
+  const maxShips = 15;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -80,7 +79,7 @@ function domGame(dependencies) {
       }
     } catch ({ message }) {
       gameException = true;
-      PubSub.publish('domGame#exception', message);
+      PubSub.publish('game#exception', message);
     }
   };
 
@@ -98,12 +97,14 @@ function domGame(dependencies) {
       if (gameException) {
         gameException = false;
       } else {
-        if (path) {
-          createShip(path);
+        const exitStatus = path ? createShip(path) : 2;
+        if (!exitStatus) {
           PubSub.publish('domGame#styleCoords', path, getCurrentBoardId());
         }
-        PubSub.publish('domGame#toggle-current-path');
-        currentPath = false;
+        if (exitStatus !== 1) {
+          PubSub.publish('domGame#toggle-current-path');
+          currentPath = false;
+        }
       }
     } else {
       currentPath = coord;
@@ -146,7 +147,7 @@ function domGame(dependencies) {
       });
     } catch ({ message }) {
       gameException = true;
-      PubSub.publish('domGame#exception', message);
+      PubSub.publish('game#exception', message);
     }
   };
 
@@ -191,7 +192,6 @@ function domGame(dependencies) {
     PubSub.subscribe('domGame#path-post-evaluation', pathPostEvaluation);
     PubSub.subscribe('domGame#styleCoords', styleCoords);
     PubSub.subscribe('domGame#toggle-current-path', toggleCurrentPath);
-    PubSub.subscribe('domGame#exception', buildError);
   };
 
   return {
