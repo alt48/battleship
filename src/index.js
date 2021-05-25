@@ -21,3 +21,4 @@ const game = domGame({
 
 game.setup();
 game.makeStartButton();
+game.makeAutoToggler();

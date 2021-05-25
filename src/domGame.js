@@ -3,6 +3,7 @@ import { hideBoard, hideScreen } from './domHideBoard';
 import styleCoords from './domStyleCells';
 import { renderShipNum, updateShipNum } from './domShipNumber';
 import PubSub from './PubSub';
+import { fillBoard, makeMove } from './domAutoMode';
 
 function domGame(dependencies) {
   const {
@@ -31,6 +32,24 @@ function domGame(dependencies) {
     PubSub.publish('domGame#dom-start');
   };
 
+  const makeAutoMove = () => {
+    const element = (coords) => (
+      document.querySelector(`[data-coord='${coords.join('#')}']`)
+    );
+    let move;
+    while (
+      !(
+        move
+        && !element(move).className.includes('hit-button')
+      )
+    ) {
+      move = makeMove(currentPlayer.board);
+    }
+    element(move).classList.add('hit-button');
+    element(move).classList.remove('gray-sea-button');
+    attemptToHit(move, true);
+  };
+
   const pointShip = (e, hitCond = hitMode) => {
     const coord = e.target.dataset.coord.split('#').map((i) => +i);
     PubSub.publish('domGame#evaluate-path', e.target);
@@ -40,6 +59,7 @@ function domGame(dependencies) {
       e.target.classList.add('hit-button');
       e.target.classList.remove('gray-sea-button');
       attemptToHit(coord);
+      if (started && autoMode) makeAutoMove();
     } else {
       PubSub.publish('domGame#deal-with-point', coord);
     }
@@ -65,16 +85,6 @@ function domGame(dependencies) {
     document.getElementById('game-props').appendChild(button);
   };
 
-  const domFinish = () => {
-    hitMode = false;
-    started = false;
-    currentPlayer = false;
-    firstPlayer = false;
-    secondPlayer = false;
-    hideScreen(hideMessage);
-    makeStartButton();
-  };
-
   const setAutoMode = () => {
     autoMode = !autoMode;
     document.body.classList.toggle('auto-mode');
@@ -89,6 +99,17 @@ function domGame(dependencies) {
     toggler.addEventListener('click', setAutoMode);
     const container = document.getElementById('root');
     container.insertBefore(toggler, container.firstElementChild);
+  };
+
+  const domFinish = () => {
+    hitMode = false;
+    started = false;
+    currentPlayer = false;
+    firstPlayer = false;
+    secondPlayer = false;
+    hideScreen(hideMessage);
+    makeAutoToggler();
+    makeStartButton();
   };
 
   const makeSingleBoard = () => {
@@ -166,11 +187,22 @@ function domGame(dependencies) {
     }
   };
 
+  const makeAutoBoard = () => {
+    document.getElementById('game-props').innerHTML = '';
+    const [ships] = fillBoard(currentPlayer.board, maxShips);
+    ships.forEach((ship) => {
+      createShip(ship);
+      PubSub.publish('domGame#styleCoords', ship, getCurrentBoardId());
+    });
+    domStartBattleship();
+  };
+
   const dealWithPoint = (coord) => {
     beginPath(coord);
     if (currentPlayer.ships.length === maxShips) {
       if (currentPlayer === firstPlayer) {
         domChangePlayer();
+        if (autoMode) makeAutoBoard();
       } else {
         document.getElementById('game-props').innerHTML = '';
         domStartBattleship();
@@ -226,7 +258,7 @@ function domGame(dependencies) {
       currentPlayer = player;
     });
     PubSub.subscribe('game#change-player', () => {
-      hideBoard(hitMode, hideMessage, [currentPlayer === secondPlayer]);
+      hideBoard(hitMode, hideMessage, autoMode, [currentPlayer === secondPlayer]);
       hideMessage = false;
     });
     PubSub.subscribe('game#finish-game', () => {
@@ -237,10 +269,17 @@ function domGame(dependencies) {
       });
       domFinish();
     });
-    PubSub.subscribe('game#create-ship', updateShipNum);
+    PubSub.subscribe('game#create-ship', (obj) => {
+      if (!autoMode || (autoMode && currentPlayer === firstPlayer)) {
+        updateShipNum(obj);
+      }
+    });
 
     // DOM game events
-    PubSub.subscribe('domGame#dom-start', renderShipNum);
+    PubSub.subscribe('domGame#dom-start', () => {
+      document.getElementById('toggle-bot').remove();
+      renderShipNum();
+    });
     PubSub.subscribe('domGame#evaluate-path', evaluatePath);
     PubSub.subscribe('domGame#deal-with-point', dealWithPoint);
     PubSub.subscribe('domGame#common-evaluation', commonEvaluation);

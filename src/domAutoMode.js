@@ -22,7 +22,7 @@ function randomShip(board, pieces) {
     const col = Math.floor(Math.random() * board[0].length);
 
     const names = Object.keys(pieces);
-    const name = names[Math.floor(Math.random() * names.length)]
+    const name = names[Math.floor(Math.random() * names.length)];
     const type = pieces[name];
     const startPoint = Math.floor(Math.random() * board.length);
 
@@ -58,17 +58,18 @@ function fillBoard(board, maxShips) {
   let i = 0;
   while (i < maxShips) {
     let path;
-    while (true) {
-      path = randomShip(board, pieces);
-      path = traversePath(...path);
-      if (path.every((i) => customBoard[i[0]] && customBoard[i[0]][i[1]] === '')) {
-        break;
-      }
+    while (
+      !(
+        path
+        && path.every((y) => customBoard[y[0]] && customBoard[y[0]][y[1]] === '')
+      )
+    ) {
+      path = traversePath(...randomShip(board, pieces));
     }
 
-    const name = Object.keys(pieces).find((i) => {
-      return pieces[i].length === path.length;
-    });
+    const name = Object.keys(pieces).find((y) => (
+      pieces[y].length === path.length
+    ));
 
     path.forEach((pair) => {
       customBoard[pair[0]][pair[1]] = name;
@@ -76,7 +77,8 @@ function fillBoard(board, maxShips) {
 
     ships.push(path);
 
-    if ((pieces[name].number -= 1) === 0) {
+    pieces[name].number -= 1;
+    if (pieces[name].number === 0) {
       delete pieces[name];
     }
     i += 1;
