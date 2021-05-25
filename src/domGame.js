@@ -12,7 +12,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 1;
+  const maxShips = 15;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -21,6 +21,7 @@ function domGame(dependencies) {
   let secondPlayer = false;
   let gameException = false;
   let hideMessage = false;
+  let autoMode = false;
 
   const domStart = (e) => {
     e.target.remove();
@@ -72,6 +73,22 @@ function domGame(dependencies) {
     secondPlayer = false;
     hideScreen(hideMessage);
     makeStartButton();
+  };
+
+  const setAutoMode = () => {
+    autoMode = !autoMode;
+    document.body.classList.toggle('auto-mode');
+  };
+
+  const makeAutoToggler = () => {
+    const toggler = document.createElement('button');
+    toggler.id = 'toggle-bot';
+    const icon = document.createElement('i');
+    icon.classList.add('gg-eye-alt');
+    toggler.appendChild(icon);
+    toggler.addEventListener('click', setAutoMode);
+    const container = document.getElementById('root');
+    container.insertBefore(toggler, container.firstElementChild);
   };
 
   const makeSingleBoard = () => {
@@ -250,6 +267,7 @@ function domGame(dependencies) {
     getAttrs,
     setup,
     makeStartButton,
+    makeAutoToggler,
   };
 }
 
