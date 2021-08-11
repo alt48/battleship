@@ -7,9 +7,9 @@ const shipProto = {
   },
 };
 
-export default function Ship(length) {
+export default function Ship(path) {
   let type;
-  switch (length) {
+  switch (path.length) {
     case 5:
       type = 'Carrier'; break;
     case 4:
@@ -23,6 +23,6 @@ export default function Ship(length) {
   }
 
   return Object.assign(Object.create(shipProto), {
-    length, hits: 0, isSunk: false, type,
+    length: path.length, hits: 0, isSunk: false, type, path,
   });
 }

@@ -24,6 +24,9 @@ function domGame(dependencies) {
   let hideMessage = false;
   let autoMode = false;
 
+  const postFocusedCells = [];
+  let isSwitch = false;
+
   const domStart = (e) => {
     e.target.remove();
     started = true;
@@ -32,22 +35,69 @@ function domGame(dependencies) {
     PubSub.publish('domGame#dom-start');
   };
 
+  const autoFollowShip = (move, path) => {
+    let clonedPath = JSON.parse(JSON.stringify(path));
+    clonedPath = clonedPath.filter((elm) => {
+      let isEqual = true;
+      for (let i = 0; i < elm.length; i += 1) {
+        if (elm[i] !== move[i]) {
+          isEqual = false;
+          break;
+        }
+      }
+
+      return !isEqual;
+    });
+
+    const inx = {};
+    for (let i = 0; i < clonedPath.length; i += 1) {
+      const clonedSum = clonedPath[i][0] + clonedPath[i][1];
+      const originSum = move[0] + move[1];
+      inx[i] = Math.abs(originSum - clonedSum);
+    }
+
+    const sorting = Object.keys(inx).sort((a, b) => inx[a] - inx[b]);
+    return sorting.map((key) => clonedPath[key]);
+  };
+
+  const computeFutureMoves = (move) => {
+    const focus = (currentPlayer === firstPlayer
+      ? secondPlayer : firstPlayer).board[move[0]][move[1]];
+
+    if (focus) {
+      autoFollowShip(move, focus.path).forEach((futureMove) => {
+        postFocusedCells.push(futureMove);
+      });
+    }
+  };
+
   const makeAutoMove = () => {
     const element = (coords) => (
       document.querySelector(`[data-coord='${coords.join('#')}']`)
     );
+
     let move;
-    while (
-      !(
-        move
-        && !element(move).className.includes('hit-button')
-      )
-    ) {
-      move = makeMove(currentPlayer.board);
+    if (postFocusedCells.length) {
+      [move] = postFocusedCells.splice(0, 1);
+      isSwitch = true;
+    } else {
+      while (
+        !(
+          move
+          && !element(move).className.includes('hit-button')
+        )
+      ) {
+        move = makeMove(currentPlayer.board);
+      }
+      isSwitch = false;
     }
-    element(move).classList.add('hit-button');
-    element(move).classList.remove('gray-sea-button');
-    attemptToHit(move, true);
+
+    const square = element(move);
+    square.classList.add('hit-button');
+    square.classList.remove('gray-sea-button');
+
+    if (!isSwitch) computeFutureMoves(move);
+    attemptToHit(move);
   };
 
   const pointShip = (e, hitCond = hitMode) => {
@@ -307,6 +357,7 @@ function domGame(dependencies) {
     setup,
     makeStartButton,
     makeAutoToggler,
+    autoFollowShip,
   };
 }
 
