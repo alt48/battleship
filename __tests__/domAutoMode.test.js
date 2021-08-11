@@ -4,8 +4,8 @@ function successfulShip(board, type, pos) {
   const pieces = {
     Destroyer: [[1], [-1]],
     Submarine: [[1, 2], [-1, 1], [-2, -1]],
-    Battleship: [[1,2,3], [-1,1,2], [-2,-1,1], [-3,-2,-1]],
-    Carrier: [[1,2,3,4], [-1,1,2,3], [-2,-1,1,2], [-3,-2,-1,1], [-4,-3,-2,-1]],
+    Battleship: [[1, 2, 3], [-1, 1, 2], [-2, -1, 1], [-3, -2, -1]],
+    Carrier: [[1, 2, 3, 4], [-1, 1, 2, 3], [-2, -1, 1, 2], [-3, -2, -1, 1], [-4, -3, -2, -1]],
   };
   const combination = pieces[type];
   let isTruthy = false;
