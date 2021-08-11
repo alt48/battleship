@@ -21,8 +21,10 @@ function hideScreen(message) {
   elm.appendChild(clickHere);
 
   elm.addEventListener('click', () => {
+    document.body.style.overflow = '';
     document.getElementById('board-layer').remove();
   });
+  document.body.style.overflow = 'hidden';
   document.body.insertBefore(elm, document.body.firstElementChild);
 }
 

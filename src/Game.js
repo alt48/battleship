@@ -98,10 +98,10 @@ function attemptToHit(coord) {
     square.hit();
     squareStatus = 'Ship hit!';
     if (opponentPlayer.ships.every((ship) => ship.isSunk)) {
-      squareStatus = 'Winner!';
       winner = currentPlayer === firstPlayer
         ? 'first player'
         : 'second player';
+      squareStatus = `The ${winner} is the winner!`;
     } else if (square.isSunk) {
       squareStatus = `${square.type} sunk!`;
     }

@@ -13,7 +13,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 15;
+  const maxShips = 2;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -244,7 +244,6 @@ function domGame(dependencies) {
       createShip(ship);
       PubSub.publish('domGame#styleCoords', ship, getCurrentBoardId());
     });
-    domStartBattleship();
   };
 
   const dealWithPoint = (coord) => {
@@ -252,7 +251,11 @@ function domGame(dependencies) {
     if (currentPlayer.ships.length === maxShips) {
       if (currentPlayer === firstPlayer) {
         domChangePlayer();
-        if (autoMode) makeAutoBoard();
+        if (autoMode) {
+          makeAutoBoard();
+          domStartBattleship();
+          hideScreen('Battleship!');
+        }
       } else {
         document.getElementById('game-props').innerHTML = '';
         domStartBattleship();
