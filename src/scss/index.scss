@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body, div, span, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+body {
+  line-height: 1;
+  transition: background-color 0.5s;
+  font-family: 'Open Sans', sans-serif;
+}
+
+#root {
+  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+#game-title {
+  cursor: default;
+  user-select: none;
+  font-weight: bold;
+  transition: height 0.5s, font-size 0.5s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-maximized {
+  font-size: 8rem;
+  height: 80vh;
+}
+
+.title-minimized {
+  font-size: 1.5rem;
+  height: 1.5rem;
+}
+
+@import "./boards/boards";
+@import "./ships/ships";
+@import "./game-status";
+@import "./game-props";
+@import "./bot";

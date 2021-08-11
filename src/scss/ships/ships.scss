@@ -1,0 +1,54 @@
+.current-ship {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.current-ship:before {
+  content: "!";
+  font-weight: bold;
+  font-size: 2em;
+  color: #ffff00;
+}
+
+.sea-button {
+  background-image: url("images/sea.png");
+}
+
+$parts: SHIP-head, SHIP-body, SHIP-tail;
+$orientations: horizontal, horizontal-reverse, vertical, vertical-reverse, template;
+
+@each $part in $parts {
+  @each $orientation in $orientations {
+    $mix: #{$part}-#{$orientation};
+    .#{$mix} {
+      background: url("images/#{to-lower-case($mix)}.png");
+    }
+  }
+}
+
+.gray-sea-button {
+  background-image: url("images/sea-gray.png");
+  &:hover {
+    outline: none;
+  }
+}
+
+.hit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &:before, &:after {
+    z-index: 998;
+    content: "";
+    height: 24px;
+    width: 24px;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  &:before {
+    position: absolute;
+    transform: rotate(22.5deg);
+  }
+  &:after {
+    transform: rotate(-22.5deg);
+  }
+}

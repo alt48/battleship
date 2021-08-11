@@ -1,0 +1,23 @@
+#game-props {
+  table {
+    user-select: none;
+    cursor: default;
+    margin: 0 auto;
+    width: 310px;
+    td:nth-child(2), td:nth-child(3) {
+      text-align: left;
+    }
+  }
+  button {
+    border: none;
+    border-radius: 20px;
+    background: #8888ff;
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.5s;
+    &:hover {
+      background: #ccccff;
+    }
+  }
+}

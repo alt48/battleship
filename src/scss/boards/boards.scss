@@ -1,0 +1,54 @@
+#boards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  button {
+    cursor: pointer;
+    width: 35px;
+    height: 32px;
+    border: none;
+    &:hover, &:focus {
+      position: relative;
+      outline: thick dashed #aa0000;
+    }
+    &:disabled {
+      cursor: default;
+      &:hover, &:focus {
+        outline: none;
+      }
+    }
+  }
+}
+
+#fp-board, #sp-board {
+  display: grid;
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  margin: 2.5rem;
+}
+
+#board-layer {
+  user-select: none;
+  cursor: pointer;
+  z-index: 999;
+  height: 100vh;
+  width: 100vw;
+  position: sticky;
+  top: 0;
+  background-color: #ff8888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#layer-message {
+  font-weight: bold;
+  font-style: italic;
+  font-size: 5rem;
+  margin-bottom: 2rem;
+}
+
+#layer-click-here {
+  font-weight: bold;
+  color: #555555;
+}
