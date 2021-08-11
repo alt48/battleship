@@ -131,3 +131,25 @@ test('path post evaluation', () => {
   game.pathPostEvaluation([[0, 1]], player);
   expect(domGameExceptionMock.mock.calls).toEqual([['Occupied!']]);
 });
+
+test('auto follow ship - natural path', () => {
+  const path = [
+    [0, 0], [0, 1], [0, 2], [0, 3], [0, 4],
+  ];
+  const move = [0, 2];
+
+  expect(game.autoFollowShip(move, path)).toEqual([
+    [0, 1], [0, 3], [0, 0], [0, 4],
+  ]);
+});
+
+test('auto follow ship - random path', () => {
+  const path = [
+    [0, 6], [4, 4], [5, 0], [5, 5],
+  ];
+  const move = [4, 4];
+
+  expect(game.autoFollowShip(move, path)).toEqual([
+    [0, 6], [5, 5], [5, 0],
+  ]);
+});

@@ -47,14 +47,14 @@ function modifyButtons(ids) {
   });
 }
 
-function hideBoard(hitMode, message, conditions) {
+function hideBoard(hitMode, message, silent, conditions) {
   const ids = getHideIds(...conditions);
   document.getElementById(ids[0]).classList.add('hidden-board');
   document.getElementById(ids[1]).classList.remove('hidden-board');
 
   const btnValues = {};
   if (hitMode) {
-    hideScreen(message);
+    if (!silent) hideScreen(message);
     btnValues[ids[0]] = ['hidden'];
     btnValues[ids[1]] = ['disabled'];
   } else {

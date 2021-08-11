@@ -13,6 +13,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6 {
 
 body {
   line-height: 1;
+  transition: background-color 0.5s;
 }
 
 #root {
@@ -47,3 +48,4 @@ body {
 @import "./ships/ships";
 @import "./game-status";
 @import "./game-props";
+@import "./bot";

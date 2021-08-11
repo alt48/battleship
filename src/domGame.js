@@ -3,6 +3,7 @@ import { hideBoard, hideScreen } from './domHideBoard';
 import styleCoords from './domStyleCells';
 import { renderShipNum, updateShipNum } from './domShipNumber';
 import PubSub from './PubSub';
+import { fillBoard, makeMove } from './domAutoMode';
 
 function domGame(dependencies) {
   const {
@@ -12,7 +13,7 @@ function domGame(dependencies) {
     attemptToHit,
   } = dependencies;
 
-  const maxShips = 1;
+  const maxShips = 15;
   let started = false;
   let currentPath = false;
   let hitMode = false;
@@ -21,6 +22,10 @@ function domGame(dependencies) {
   let secondPlayer = false;
   let gameException = false;
   let hideMessage = false;
+  let autoMode = false;
+
+  const postFocusedCells = [];
+  let isSwitch = false;
 
   const domStart = (e) => {
     e.target.remove();
@@ -28,6 +33,71 @@ function domGame(dependencies) {
     PubSub.publish('domGame#prepare-boards');
     start();
     PubSub.publish('domGame#dom-start');
+  };
+
+  const autoFollowShip = (move, path) => {
+    let clonedPath = JSON.parse(JSON.stringify(path));
+    clonedPath = clonedPath.filter((elm) => {
+      let isEqual = true;
+      for (let i = 0; i < elm.length; i += 1) {
+        if (elm[i] !== move[i]) {
+          isEqual = false;
+          break;
+        }
+      }
+
+      return !isEqual;
+    });
+
+    const inx = {};
+    for (let i = 0; i < clonedPath.length; i += 1) {
+      const clonedSum = clonedPath[i][0] + clonedPath[i][1];
+      const originSum = move[0] + move[1];
+      inx[i] = Math.abs(originSum - clonedSum);
+    }
+
+    const sorting = Object.keys(inx).sort((a, b) => inx[a] - inx[b]);
+    return sorting.map((key) => clonedPath[key]);
+  };
+
+  const computeFutureMoves = (move) => {
+    const focus = (currentPlayer === firstPlayer
+      ? secondPlayer : firstPlayer).board[move[0]][move[1]];
+
+    if (focus) {
+      autoFollowShip(move, focus.path).forEach((futureMove) => {
+        postFocusedCells.push(futureMove);
+      });
+    }
+  };
+
+  const makeAutoMove = () => {
+    const element = (coords) => (
+      document.querySelector(`[data-coord='${coords.join('#')}']`)
+    );
+
+    let move;
+    if (postFocusedCells.length) {
+      [move] = postFocusedCells.splice(0, 1);
+      isSwitch = true;
+    } else {
+      while (
+        !(
+          move
+          && !element(move).className.includes('hit-button')
+        )
+      ) {
+        move = makeMove(currentPlayer.board);
+      }
+      isSwitch = false;
+    }
+
+    const square = element(move);
+    square.classList.add('hit-button');
+    square.classList.remove('gray-sea-button');
+
+    if (!isSwitch) computeFutureMoves(move);
+    attemptToHit(move);
   };
 
   const pointShip = (e, hitCond = hitMode) => {
@@ -39,6 +109,7 @@ function domGame(dependencies) {
       e.target.classList.add('hit-button');
       e.target.classList.remove('gray-sea-button');
       attemptToHit(coord);
+      if (started && autoMode) makeAutoMove();
     } else {
       PubSub.publish('domGame#deal-with-point', coord);
     }
@@ -64,6 +135,22 @@ function domGame(dependencies) {
     document.getElementById('game-props').appendChild(button);
   };
 
+  const setAutoMode = () => {
+    autoMode = !autoMode;
+    document.body.classList.toggle('auto-mode');
+  };
+
+  const makeAutoToggler = () => {
+    const toggler = document.createElement('button');
+    toggler.id = 'toggle-bot';
+    const icon = document.createElement('i');
+    icon.classList.add('gg-eye-alt');
+    toggler.appendChild(icon);
+    toggler.addEventListener('click', setAutoMode);
+    const container = document.getElementById('root');
+    container.insertBefore(toggler, container.firstElementChild);
+  };
+
   const domFinish = () => {
     hitMode = false;
     started = false;
@@ -71,6 +158,7 @@ function domGame(dependencies) {
     firstPlayer = false;
     secondPlayer = false;
     hideScreen(hideMessage);
+    makeAutoToggler();
     makeStartButton();
   };
 
@@ -149,11 +237,22 @@ function domGame(dependencies) {
     }
   };
 
+  const makeAutoBoard = () => {
+    document.getElementById('game-props').innerHTML = '';
+    const [ships] = fillBoard(currentPlayer.board, maxShips);
+    ships.forEach((ship) => {
+      createShip(ship);
+      PubSub.publish('domGame#styleCoords', ship, getCurrentBoardId());
+    });
+    domStartBattleship();
+  };
+
   const dealWithPoint = (coord) => {
     beginPath(coord);
     if (currentPlayer.ships.length === maxShips) {
       if (currentPlayer === firstPlayer) {
         domChangePlayer();
+        if (autoMode) makeAutoBoard();
       } else {
         document.getElementById('game-props').innerHTML = '';
         domStartBattleship();
@@ -209,7 +308,7 @@ function domGame(dependencies) {
       currentPlayer = player;
     });
     PubSub.subscribe('game#change-player', () => {
-      hideBoard(hitMode, hideMessage, [currentPlayer === secondPlayer]);
+      hideBoard(hitMode, hideMessage, autoMode, [currentPlayer === secondPlayer]);
       hideMessage = false;
     });
     PubSub.subscribe('game#finish-game', () => {
@@ -220,10 +319,17 @@ function domGame(dependencies) {
       });
       domFinish();
     });
-    PubSub.subscribe('game#create-ship', updateShipNum);
+    PubSub.subscribe('game#create-ship', (obj) => {
+      if (!autoMode || (autoMode && currentPlayer === firstPlayer)) {
+        updateShipNum(obj);
+      }
+    });
 
     // DOM game events
-    PubSub.subscribe('domGame#dom-start', renderShipNum);
+    PubSub.subscribe('domGame#dom-start', () => {
+      document.getElementById('toggle-bot').remove();
+      renderShipNum();
+    });
     PubSub.subscribe('domGame#evaluate-path', evaluatePath);
     PubSub.subscribe('domGame#deal-with-point', dealWithPoint);
     PubSub.subscribe('domGame#common-evaluation', commonEvaluation);
@@ -250,6 +356,8 @@ function domGame(dependencies) {
     getAttrs,
     setup,
     makeStartButton,
+    makeAutoToggler,
+    autoFollowShip,
   };
 }
 

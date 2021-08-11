@@ -2,7 +2,7 @@ import Ship from './Ship';
 
 const gameboardProto = {
   addShip(pos, builderFunc = Ship) {
-    const ship = builderFunc(pos.length);
+    const ship = builderFunc(pos);
     this.ships.push(ship);
     pos.forEach((coord) => {
       this.board[coord[0]][coord[1]] = ship;
